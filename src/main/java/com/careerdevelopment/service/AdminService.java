@@ -1,8 +1,15 @@
 package com.careerdevelopment.service;
 
-import com.careerdevelopment.model.Company;
+import org.springframework.stereotype.Service;
 
-public interface AdminService {
-    void reviewCompany(Long companyId, boolean approve);
-    void monitorApplications();
+@Service
+public class AdminService {
+
+    public void reviewCompany(Long companyId, boolean approve) {
+        // TODO: Implement company review and approval logic
+    }
+
+    public void monitorApplications() {
+        // TODO: Implement application monitoring logic
+    }
 }

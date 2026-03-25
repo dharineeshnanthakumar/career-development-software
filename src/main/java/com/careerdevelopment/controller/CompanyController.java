@@ -16,6 +16,6 @@ public class CompanyController {
     @PostMapping("/register")
     public ResponseEntity<Company> registerCompany(@RequestBody Company company) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 }

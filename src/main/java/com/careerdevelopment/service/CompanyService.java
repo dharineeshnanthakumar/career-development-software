@@ -1,10 +1,13 @@
 package com.careerdevelopment.service;
 
 import com.careerdevelopment.model.Company;
+import org.springframework.stereotype.Service;
 
-public interface CompanyService {
-    Company registerCompany(Company company);
-    // Note: Other functionalities like posting job, updating job status 
-    // and giving feedback are typically managed via their respective services, 
-    // or we can put them here. We will manage jobs via JobService.
+@Service
+public class CompanyService {
+
+    public Company registerCompany(Company company) {
+        // TODO: Implement company registration logic
+        return null;
+    }
 }

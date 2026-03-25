@@ -16,7 +16,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestParam String email, @RequestParam String password) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 
     @PostMapping("/register")

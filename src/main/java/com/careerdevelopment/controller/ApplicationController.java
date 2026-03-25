@@ -17,13 +17,13 @@ public class ApplicationController {
     @PostMapping("/apply")
     public ResponseEntity<Application> applyToJob(@RequestParam Long studentId, @RequestParam Long jobId) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 
     @GetMapping("/{applicationId}/status")
     public ResponseEntity<ApplicationStatus> trackStatus(@PathVariable Long applicationId) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 
     @PutMapping("/{applicationId}/status")

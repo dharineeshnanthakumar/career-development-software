@@ -17,7 +17,7 @@ public class StudentController {
     @PostMapping("/enroll")
     public ResponseEntity<Student> enrollStudent(@RequestBody Student student) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 
     @PostMapping("/{studentId}/upload-cv")

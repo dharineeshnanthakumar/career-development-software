@@ -18,18 +18,18 @@ public class JobController {
     @PostMapping("/post")
     public ResponseEntity<Job> postJob(@RequestBody Job job) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<List<Job>> getAllJobs() {
         // TODO: Map to service logic
-        return ResponseEntity.ok(new ArrayList<>());
+        return ResponseEntity.ok(new java.util.ArrayList<>());
     }
 
     @GetMapping("/{jobId}")
     public ResponseEntity<Job> getJobById(@PathVariable Long jobId) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 }

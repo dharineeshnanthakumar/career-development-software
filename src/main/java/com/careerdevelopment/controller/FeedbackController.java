@@ -16,12 +16,12 @@ public class FeedbackController {
     @PostMapping("/student")
     public ResponseEntity<Feedback> submitStudentFeedback(@RequestBody Feedback feedback) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 
     @PostMapping("/company")
     public ResponseEntity<Feedback> submitCompanyFeedback(@RequestBody Feedback feedback) {
         // TODO: Map to service logic
-        return ResponseEntity.ok(null);
+        return new ResponseEntity<>(org.springframework.http.HttpStatus.OK);
     }
 }
