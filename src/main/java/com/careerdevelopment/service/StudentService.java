@@ -1,12 +1,269 @@
 package com.careerdevelopment.service;
+
+import com.careerdevelopment.dto.application.ApplicationResponse;
+import com.careerdevelopment.dto.cv.CvUploadResponse;
+import com.careerdevelopment.dto.feedback.StudentFeedbackRequest;
+import com.careerdevelopment.dto.feedback.StudentFeedbackResponse;
+import com.careerdevelopment.dto.job.JobResponse;
+import com.careerdevelopment.dto.notification.NotificationResponse;
+import com.careerdevelopment.dto.student.StudentProfileResponse;
+import com.careerdevelopment.dto.student.StudentProfileUpdateRequest;
+import com.careerdevelopment.exception.ResourceNotFoundException;
+import com.careerdevelopment.exception.UnauthorizedException;
+import com.careerdevelopment.exception.ValidationException;
+import com.careerdevelopment.model.Application;
+import com.careerdevelopment.model.CV;
+import com.careerdevelopment.model.Company;
+import com.careerdevelopment.model.JobRequirement;
 import com.careerdevelopment.model.Student;
+import com.careerdevelopment.model.StudentFeedback;
+import com.careerdevelopment.model.enums.ApplicationStatus;
+import com.careerdevelopment.model.enums.JobStatus;
+import com.careerdevelopment.model.enums.NotificationType;
+import com.careerdevelopment.repository.ApplicationRepository;
+import com.careerdevelopment.repository.CompanyRepository;
+import com.careerdevelopment.repository.CVRepository;
+import com.careerdevelopment.repository.JobRequirementRepository;
+import com.careerdevelopment.repository.StudentFeedbackRepository;
+import com.careerdevelopment.repository.StudentRepository;
+import com.careerdevelopment.security.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
 @Service
 public class StudentService {
-    public Student enrollStudent(Student student) {
-        return null;
+    private final SecurityUtils securityUtils;
+    private final StudentRepository studentRepository;
+    private final CVRepository cvRepository;
+    private final JobRequirementRepository jobRequirementRepository;
+    private final ApplicationRepository applicationRepository;
+    private final NotificationService notificationService;
+    private final CompanyRepository companyRepository;
+    private final StudentFeedbackRepository studentFeedbackRepository;
+    private final FileStorageService fileStorageService;
+
+    public StudentService(
+            SecurityUtils securityUtils,
+            StudentRepository studentRepository,
+            CVRepository cvRepository,
+            JobRequirementRepository jobRequirementRepository,
+            ApplicationRepository applicationRepository,
+            NotificationService notificationService,
+            CompanyRepository companyRepository,
+            StudentFeedbackRepository studentFeedbackRepository,
+            FileStorageService fileStorageService
+    ) {
+        this.securityUtils = securityUtils;
+        this.studentRepository = studentRepository;
+        this.cvRepository = cvRepository;
+        this.jobRequirementRepository = jobRequirementRepository;
+        this.applicationRepository = applicationRepository;
+        this.notificationService = notificationService;
+        this.companyRepository = companyRepository;
+        this.studentFeedbackRepository = studentFeedbackRepository;
+        this.fileStorageService = fileStorageService;
     }
-    public void uploadCv(Long studentId, MultipartFile cvFile) {
+
+    private Student getCurrentStudent() {
+        Long userId = securityUtils.getPrincipal().getUserId();
+        return studentRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new UnauthorizedException("Student profile not found"));
+    }
+
+    public StudentProfileResponse getProfile() {
+        Student s = getCurrentStudent();
+        StudentProfileResponse res = new StudentProfileResponse();
+        res.setStudentId(s.getId());
+        res.setUserId(s.getUser().getId());
+        res.setEmail(s.getUser().getEmail());
+        res.setName(s.getName());
+        res.setRollNumber(s.getRollNumber());
+        res.setDepartment(s.getDepartment());
+        res.setGraduationYear(s.getGraduationYear());
+        res.setPhone(s.getPhone());
+        res.setEnrolledInPlacement(s.isEnrolledInPlacement());
+        return res;
+    }
+
+    public StudentProfileResponse updateProfile(StudentProfileUpdateRequest request) {
+        Student s = getCurrentStudent();
+
+        studentRepository.findByRollNumber(request.getRollNumber())
+                .filter(other -> !other.getId().equals(s.getId()))
+                .ifPresent(other -> {
+                    throw new ValidationException("rollNumber already in use");
+                });
+
+        s.setName(request.getName());
+        s.setRollNumber(request.getRollNumber());
+        s.setDepartment(request.getDepartment());
+        s.setGraduationYear(request.getGraduationYear());
+        s.setPhone(request.getPhone());
+
+        studentRepository.save(s);
+        return getProfile();
+    }
+
+    public CvUploadResponse uploadCv(MultipartFile file) {
+        Student s = getCurrentStudent();
+
+        // Validates extension and max size (<= 2MB).
+        FileStorageService.StoredFile stored = fileStorageService.storeCv(file);
+
+        // Mark existing active CV inactive.
+        cvRepository.findByStudent_IdAndIsActiveTrue(s.getId()).ifPresent(existing -> {
+            existing.setActive(false);
+            cvRepository.save(existing);
+        });
+
+        CV cv = new CV();
+        cv.setStudent(s);
+        cv.setFileName(stored.fileName());
+        cv.setFilePath(stored.filePath());
+        cv.setFileSize(stored.fileSize());
+        cv.setActive(true);
+        cvRepository.save(cv);
+
+        CvUploadResponse res = new CvUploadResponse();
+        res.setCvId(cv.getId());
+        res.setFileName(cv.getFileName());
+        res.setFileSize(cv.getFileSize());
+        res.setUploadedAt(cv.getUploadedAt());
+        res.setActive(true);
+        return res;
+    }
+
+    public CvUploadResponse getActiveCv() {
+        Student s = getCurrentStudent();
+        CV cv = cvRepository.findByStudent_IdAndIsActiveTrue(s.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No active CV found"));
+
+        CvUploadResponse res = new CvUploadResponse();
+        res.setCvId(cv.getId());
+        res.setFileName(cv.getFileName());
+        res.setFileSize(cv.getFileSize());
+        res.setUploadedAt(cv.getUploadedAt());
+        res.setActive(cv.isActive());
+        return res;
+    }
+
+    public void deleteCv(Long cvId) {
+        Student s = getCurrentStudent();
+        CV cv = cvRepository.findByIdAndStudent_Id(cvId, s.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("CV not found"));
+
+        cvRepository.delete(cv);
+    }
+
+    public List<JobResponse> listOpenJobs() {
+        List<JobRequirement> open = jobRequirementRepository.findByStatus(JobStatus.OPEN);
+        // Only verified companies should be visible to students.
+        return open.stream()
+                .filter(j -> j.getCompany() != null && j.getCompany().isVerified())
+                .map(j -> toJobResponse(j))
+                .toList();
+    }
+
+    public ApplicationResponse applyToJob(Long jobId) {
+        Student s = getCurrentStudent();
+        if (!s.isEnrolledInPlacement()) {
+            throw new ValidationException("Student is not enrolled in placement");
+        }
+
+        JobRequirement job = jobRequirementRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        if (job.getStatus() != JobStatus.OPEN) {
+            throw new ValidationException("Job is not open");
+        }
+
+        CV activeCv = cvRepository.findByStudent_IdAndIsActiveTrue(s.getId())
+                .orElseThrow(() -> new ValidationException("Active CV is required to apply"));
+
+        Application application = new Application();
+        application.setStudent(s);
+        application.setJobRequirement(job);
+        application.setCv(activeCv);
+        application.setStatus(ApplicationStatus.APPLIED);
+
+        applicationRepository.save(application);
+
+        // Notify company that a new application was received.
+        notificationService.create(
+                job.getCompany().getUser(),
+                "New application received",
+                "Student " + s.getName() + " (" + s.getRollNumber() + ") applied for " + job.getTitle(),
+                NotificationType.GENERAL
+        );
+
+        ApplicationResponse res = new ApplicationResponse();
+        res.setApplicationId(application.getId());
+        res.setJobRequirementId(application.getJobRequirement().getId());
+        res.setStatus(application.getStatus());
+        res.setAppliedAt(application.getAppliedAt());
+        return res;
+    }
+
+    public List<ApplicationResponse> getMyApplications() {
+        Student s = getCurrentStudent();
+        return applicationRepository.findByStudent_Id(s.getId()).stream()
+                .map(a -> {
+                    ApplicationResponse res = new ApplicationResponse();
+                    res.setApplicationId(a.getId());
+                    res.setJobRequirementId(a.getJobRequirement().getId());
+                    res.setStatus(a.getStatus());
+                    res.setAppliedAt(a.getAppliedAt());
+                    return res;
+                })
+                .toList();
+    }
+
+    public List<NotificationResponse> getMyNotifications() {
+        Long userId = securityUtils.getPrincipal().getUserId();
+        return notificationService.listForRecipient(userId);
+    }
+
+    public void markNotificationRead(Long notificationId) {
+        Long userId = securityUtils.getPrincipal().getUserId();
+        notificationService.markAsRead(notificationId, userId);
+    }
+
+    public StudentFeedbackResponse submitFeedbackForCompany(Long companyId, StudentFeedbackRequest request) {
+        Student s = getCurrentStudent();
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+
+        StudentFeedback fb = new StudentFeedback();
+        fb.setStudent(s);
+        fb.setCompany(company);
+        fb.setRating(request.getRating());
+        fb.setComments(request.getComments());
+        studentFeedbackRepository.save(fb);
+
+        StudentFeedbackResponse res = new StudentFeedbackResponse();
+        res.setId(fb.getId());
+        res.setStudentId(s.getId());
+        res.setCompanyId(company.getId());
+        res.setRating(fb.getRating());
+        res.setComments(fb.getComments());
+        res.setSubmittedAt(fb.getSubmittedAt());
+        return res;
+    }
+
+    private JobResponse toJobResponse(JobRequirement job) {
+        JobResponse res = new JobResponse();
+        res.setJobId(job.getId());
+        res.setCompanyId(job.getCompany().getId());
+        res.setTitle(job.getTitle());
+        res.setDescription(job.getDescription());
+        res.setEligibilityCriteria(job.getEligibilityCriteria());
+        res.setLocation(job.getLocation());
+        res.setCtc(job.getCtc());
+        res.setDeadline(job.getDeadline());
+        res.setStatus(job.getStatus());
+        res.setPostedAt(job.getPostedAt());
+        return res;
     }
 }
+

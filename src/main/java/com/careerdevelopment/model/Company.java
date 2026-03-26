@@ -1,33 +1,145 @@
 package com.careerdevelopment.model;
-import com.careerdevelopment.model.enums.ApprovalStatus;
-import javax.persistence.*;
-import java.util.List;
+
+import jakarta.persistence.*;
+
+import java.time.Instant;
+import java.util.Objects;
+
 @Entity
 @Table(name = "companies")
-public class Company extends User {
-    @Column(nullable = false, unique = true)
-    private String companyId;
+public class Company {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    private User user;
+
     @Column(nullable = false)
-    private String companyName;
-    @Enumerated(EnumType.STRING)
+    private String name;
+
     @Column(nullable = false)
-    private ApprovalStatus approvalStatus = ApprovalStatus.PENDING;
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private List<Job> jobs;
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private List<Feedback> feedbacks;
-    public Company() {
-        super();
-        this.setRole(com.careerdevelopment.model.enums.Role.COMPANY);
+    private String industry;
+
+    @Column
+    private String website;
+
+    @Column(nullable = false)
+    private String contactPerson;
+
+    @Column(nullable = false)
+    private String contactEmail;
+
+    @Column(nullable = false)
+    private String contactPhone;
+
+    @Column(nullable = false)
+    private boolean isVerified = false;
+
+    @Column(nullable = false, updatable = false)
+    private Instant enrolledAt;
+
+    @PrePersist
+    void prePersist() {
+        if (enrolledAt == null) {
+            enrolledAt = Instant.now();
+        }
     }
-    public String getCompanyId() { return companyId; }
-    public void setCompanyId(String companyId) { this.companyId = companyId; }
-    public String getCompanyName() { return companyName; }
-    public void setCompanyName(String companyName) { this.companyName = companyName; }
-    public ApprovalStatus getApprovalStatus() { return approvalStatus; }
-    public void setApprovalStatus(ApprovalStatus approvalStatus) { this.approvalStatus = approvalStatus; }
-    public List<Job> getJobs() { return jobs; }
-    public void setJobs(List<Job> jobs) { this.jobs = jobs; }
-    public List<Feedback> getFeedbacks() { return feedbacks; }
-    public void setFeedbacks(List<Feedback> feedbacks) { this.feedbacks = feedbacks; }
+
+    public Company() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
+
+    public Instant getEnrolledAt() {
+        return enrolledAt;
+    }
+
+    public void setEnrolledAt(Instant enrolledAt) {
+        this.enrolledAt = enrolledAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Company company = (Company) o;
+        return Objects.equals(id, company.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
+

@@ -1,6 +1,8 @@
 package com.careerdevelopment.model.enums;
+
 public enum Role {
-    STUDENT,
-    COMPANY,
-    ADMIN
+    ROLE_STUDENT,
+    ROLE_COMPANY,
+    ROLE_ADMIN
 }
+

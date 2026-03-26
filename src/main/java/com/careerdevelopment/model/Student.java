@@ -1,43 +1,115 @@
 package com.careerdevelopment.model;
-import javax.persistence.*;
-import java.util.List;
+
+import jakarta.persistence.*;
+
+import java.util.Objects;
+
 @Entity
 @Table(name = "students")
-public class Student extends User {
-    @Column(nullable = false)
-    private String studentId;
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    private User user;
+
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false, unique = true)
+    private String rollNumber;
+
     @Column(nullable = false)
     private String department;
+
     @Column(nullable = false)
-    private Integer graduationYear;
+    private int graduationYear;
+
     @Column(nullable = false)
-    private Double cgpa;
-    @Column(name = "cv_file")
-    private String cvFile;
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<Application> applications;
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<Feedback> feedbacks;
-    public Student() {
-        super();
-        this.setRole(com.careerdevelopment.model.enums.Role.STUDENT);
+    private String phone;
+
+    @Column(nullable = false)
+    private boolean isEnrolledInPlacement = false;
+
+    public Student() {}
+
+    public Long getId() {
+        return id;
     }
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDepartment() { return department; }
-    public void setDepartment(String department) { this.department = department; }
-    public Integer getGraduationYear() { return graduationYear; }
-    public void setGraduationYear(Integer graduationYear) { this.graduationYear = graduationYear; }
-    public Double getCgpa() { return cgpa; }
-    public void setCgpa(Double cgpa) { this.cgpa = cgpa; }
-    public String getCvFile() { return cvFile; }
-    public void setCvFile(String cvFile) { this.cvFile = cvFile; }
-    public List<Application> getApplications() { return applications; }
-    public void setApplications(List<Application> applications) { this.applications = applications; }
-    public List<Feedback> getFeedbacks() { return feedbacks; }
-    public void setFeedbacks(List<Feedback> feedbacks) { this.feedbacks = feedbacks; }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRollNumber() {
+        return rollNumber;
+    }
+
+    public void setRollNumber(String rollNumber) {
+        this.rollNumber = rollNumber;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public int getGraduationYear() {
+        return graduationYear;
+    }
+
+    public void setGraduationYear(int graduationYear) {
+        this.graduationYear = graduationYear;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public boolean isEnrolledInPlacement() {
+        return isEnrolledInPlacement;
+    }
+
+    public void setEnrolledInPlacement(boolean enrolledInPlacement) {
+        isEnrolledInPlacement = enrolledInPlacement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(id, student.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
+
