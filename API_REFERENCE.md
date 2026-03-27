@@ -1,6 +1,7 @@
 # Career Development Software — API Reference
 
 Base URL: `http://localhost:8080`
+Frontend URL: `http://localhost:5173`
 
 ## Authentication
 - Use a JWT in the `Authorization` header for all authenticated endpoints:

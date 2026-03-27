@@ -112,10 +112,16 @@ public class StudentService {
         // Validates extension and max size (<= 2MB).
         FileStorageService.StoredFile stored = fileStorageService.storeCv(file);
 
-        // Mark existing active CV inactive.
+        // Remove existing active CV and unlink from applications to prevent FK constraint failures.
         cvRepository.findByStudent_IdAndIsActiveTrue(s.getId()).ifPresent(existing -> {
-            existing.setActive(false);
-            cvRepository.save(existing);
+            java.util.List<Application> apps = applicationRepository.findByStudent_Id(s.getId());
+            for (Application app : apps) {
+                if (app.getCv() != null && app.getCv().getId().equals(existing.getId())) {
+                    app.setCv(null);
+                    applicationRepository.save(app);
+                }
+            }
+            cvRepository.delete(existing);
         });
 
         CV cv = new CV();
@@ -264,6 +270,17 @@ public class StudentService {
         res.setStatus(job.getStatus());
         res.setPostedAt(job.getPostedAt());
         return res;
+    }
+
+    public record CvDownload(org.springframework.core.io.Resource resource, String fileName) {}
+
+    public CvDownload downloadActiveCv() {
+        Student s = getCurrentStudent();
+        CV cv = cvRepository.findByStudent_IdAndIsActiveTrue(s.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No active CV found"));
+
+        org.springframework.core.io.Resource resource = fileStorageService.loadAsResource(cv.getFilePath());
+        return new CvDownload(resource, cv.getFileName());
     }
 }
 

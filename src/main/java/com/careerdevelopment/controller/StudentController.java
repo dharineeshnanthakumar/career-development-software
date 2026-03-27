@@ -71,6 +71,23 @@ public class StudentController {
         );
     }
 
+    @GetMapping("/cv/download")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadCv() {
+        var download = studentService.downloadActiveCv();
+        String fileName = download.fileName();
+        
+        MediaType contentType = MediaType.APPLICATION_OCTET_STREAM;
+        if (fileName != null) {
+            if (fileName.toLowerCase().endsWith(".pdf")) contentType = MediaType.APPLICATION_PDF;
+            if (fileName.toLowerCase().endsWith(".docx")) contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        }
+
+        return ResponseEntity.ok()
+                .contentType(contentType)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(download.resource());
+    }
+
     @GetMapping("/jobs")
     public ResponseEntity<com.careerdevelopment.dto.api.ApiResponse<List<JobResponse>>> jobs() {
         return ResponseEntity.ok(
