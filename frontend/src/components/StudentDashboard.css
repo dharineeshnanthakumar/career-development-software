@@ -148,6 +148,40 @@
   font-size: 1.1rem;
 }
 
+/* ===== FLOATING ABOUT CARD ===== */
+.about-card-floating {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 62, 126, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+}
+
+.about-card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgba(0, 62, 126, 1);
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.about-card-content {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  text-align: left;
+  margin: 0;
+}
+
+.dashboard-content-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .icon-btn:hover {
   background: var(--card-hover);
   transform: translateY(-2px);

@@ -85,10 +85,15 @@ export default function StudentDashboard() {
 
       {/* Main Content Area */}
       <main className="dashboard-main">
-        {activeTab === 'Overview' && <StudentOverview user={user} applications={applications} jobs={jobs} loadingData={loadingData} />}
-        {activeTab === 'Jobs' && <StudentJobs jobs={jobs} loadingData={loadingData} />}
-        {activeTab === 'Applications' && <StudentApplications applications={applications} loadingData={loadingData} />}
-        {activeTab === 'Profile' && <StudentProfile />}
+        {/* Floating About Card */}
+
+        {/* Tab Content */}
+        <div className="dashboard-content-tabs">
+          {activeTab === 'Overview' && <StudentOverview user={user} applications={applications} jobs={jobs} loadingData={loadingData} />}
+          {activeTab === 'Jobs' && <StudentJobs jobs={jobs} loadingData={loadingData} />}
+          {activeTab === 'Applications' && <StudentApplications applications={applications} loadingData={loadingData} />}
+          {activeTab === 'Profile' && <StudentProfile />}
+        </div>
       </main>
     </div>
   );
