@@ -29,6 +29,7 @@ import com.careerdevelopment.repository.CompanyRepository;
 import com.careerdevelopment.repository.JobRequirementRepository;
 import com.careerdevelopment.repository.StudentRepository;
 import com.careerdevelopment.security.SecurityUtils;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,6 @@ public class CompanyService {
     private final NotificationService notificationService;
     private final StudentRepository studentRepository;
     private final CompanyFeedbackRepository companyFeedbackRepository;
-    private final FileStorageService fileStorageService;
 
     public CompanyService(
             SecurityUtils securityUtils,
@@ -52,8 +52,7 @@ public class CompanyService {
             ApplicationRepository applicationRepository,
             NotificationService notificationService,
             StudentRepository studentRepository,
-            CompanyFeedbackRepository companyFeedbackRepository,
-            FileStorageService fileStorageService
+            CompanyFeedbackRepository companyFeedbackRepository
     ) {
         this.securityUtils = securityUtils;
         this.companyRepository = companyRepository;
@@ -62,7 +61,6 @@ public class CompanyService {
         this.notificationService = notificationService;
         this.studentRepository = studentRepository;
         this.companyFeedbackRepository = companyFeedbackRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     private Company getCurrentCompany() {
@@ -202,7 +200,7 @@ public class CompanyService {
         }
 
         CV cv = app.getCv();
-        Resource resource = fileStorageService.loadAsResource(cv.getFilePath());
+        Resource resource = new ByteArrayResource(cv.getData());
         return new CvDownload(resource, cv.getFileName());
     }
 

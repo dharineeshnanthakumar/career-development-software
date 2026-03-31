@@ -1,0 +1,72 @@
+.navbar {
+  width: 100%;
+  background: rgba(0, 62, 126, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 62, 126, 0.2);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.navbar-admin {
+  flex-shrink: 0;
+}
+
+.admin-login-link {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  position: relative;
+}
+
+.admin-login-link:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.admin-login-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 1);
+  transition: width 0.3s ease;
+}
+
+.admin-login-link:hover::after {
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .navbar-logo-img {
+    height: 40px;
+  }
+
+  .admin-login-link {
+    font-size: 0.85rem;
+  }
+}

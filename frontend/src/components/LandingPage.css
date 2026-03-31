@@ -1,0 +1,647 @@
+/* LandingPage.css - Modern Minimalist Design with Toggle Switch */
+
+.landing-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 3rem 2rem 2rem;
+  margin-top: 70px;
+}
+
+.landing-main-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: 1600px;
+  width: 100%;
+}
+
+/* Left Side - Logo Section */
+.landing-logo-section {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+}
+
+.landing-logo {
+  width: 400px;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  animation: fadeInLeft 0.8s ease-out;
+  margin-top: -80px;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Middle - Title Section */
+.landing-title-section {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 280px;
+}
+
+.header-section {
+  margin-bottom: 0;
+}
+
+.main-title {
+  font-size: 5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.title-word {
+  display: block;
+  text-align: left;
+}
+
+.main-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Right Side - Portal Section */
+.landing-portal-section {
+  flex: 1;
+  min-width: 320px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ===== TOGGLE SWITCH STYLES ===== */
+.toggle-section {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+/* Pill-shaped toggle container */
+.toggle-container {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 50px;
+  padding: 0.4rem;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.toggle-container:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+/* Individual toggle options */
+.toggle-option {
+  background: none;
+  border: none;
+  padding: 0.65rem 1.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 2;
+  font-family: inherit;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.toggle-option:hover:not(.active) {
+  color: rgba(0, 62, 126, 0.7);
+}
+
+.toggle-option.active {
+  color: #fff;
+}
+
+/* Animated slider background */
+.toggle-slider {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  height: calc(100% - 0.8rem);
+  width: calc(50% - 0.2rem);
+  background: rgba(0, 62, 126, 1);
+  border-radius: 45px;
+  z-index: 1;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 62, 126, 0.3);
+}
+
+/* Slider position when employer is selected */
+.toggle-slider.employer {
+  left: calc(50% + 0.2rem);
+}
+
+/* ===== CONTENT AREA ===== */
+.content-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0;
+  perspective: 1000px;
+  width: 100%;
+}
+
+.content-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.content-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+  text-align: left;
+}
+
+.content-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* Smooth fade-in animation for content */
+.fade-in {
+  animation: fadeInContent 0.5s ease-out;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== BUTTON STYLES ===== */
+.primary-btn-large {
+  background: rgba(0, 62, 126, 1);
+  color: white;
+  border: none;
+  padding: 0.85rem 2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 62, 126, 0.3);
+  font-family: inherit;
+}
+
+.primary-btn-large:hover {
+  background: rgba(0, 45, 90, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 62, 126, 0.4);
+}
+
+.primary-btn-large:active {
+  transform: translateY(0);
+}
+
+/* ===== ABOUT SECTION ===== */
+.about-section {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 62, 126, 0.03) 100%);
+  padding: 4rem 2rem;
+  margin-top: 4rem;
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.about-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.about-text {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Vision & Mission Card */
+.vision-mission-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.vision-mission-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 62, 126, 0.1);
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.vision-mission-section {
+  text-align: left;
+}
+
+.vision-mission-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(0, 62, 126, 1);
+  margin-bottom: 1rem;
+}
+
+.vision-mission-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.vision-mission-list {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vision-mission-list li {
+  margin-bottom: 1rem;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.vision-mission-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: rgba(0, 62, 126, 1);
+  font-weight: bold;
+}
+
+.vision-mission-divider {
+  display: none;
+  width: 2px;
+  background: rgba(0, 62, 126, 0.2);
+  height: 100%;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1400px) {
+  .landing-main-wrapper {
+    gap: 1.5rem;
+  }
+
+  .landing-logo {
+    width: 320px;
+  }
+
+  .main-title {
+    font-size: 2.8rem;
+  }
+
+  .landing-portal-section {
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .landing-main-wrapper {
+    gap: 1rem;
+  }
+
+  .landing-logo {
+    width: 280px;
+  }
+
+  .main-title {
+    font-size: 2.4rem;
+  }
+
+  .landing-title-section {
+    min-width: 250px;
+  }
+
+  .landing-portal-section {
+    max-width: 340px;
+  }
+
+  .main-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .toggle-option {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.8rem;
+    min-width: 110px;
+  }
+}
+
+@media (max-width: 992px) {
+  .landing-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .landing-main-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .landing-logo-section {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .landing-logo {
+    width: 250px;
+  }
+
+  .landing-title-section {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .title-word {
+    text-align: center;
+  }
+
+  .main-subtitle {
+    white-space: normal;
+  }
+
+  .landing-portal-section {
+    width: 100%;
+    max-width: 450px;
+    align-items: center;
+  }
+
+  .toggle-section {
+    justify-content: center;
+  }
+
+  .content-card {
+    width: 100%;
+  }
+
+  .tagline {
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-container {
+    padding: 1.5rem;
+    margin-top: 60px;
+  }
+
+  .landing-main-wrapper {
+    gap: 1.5rem;
+  }
+
+  .landing-logo {
+    width: 200px;
+  }
+
+  .main-title {
+    font-size: 2rem;
+  }
+
+  .main-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .toggle-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .toggle-option {
+    padding: 0.55rem 1rem;
+    font-size: 0.75rem;
+    min-width: 100px;
+  }
+
+  .content-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .content-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .content-card p {
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .primary-btn-large {
+    padding: 0.75rem 1.75rem;
+    font-size: 0.8rem;
+  }
+
+  .tagline {
+    font-size: 0.7rem;
+    margin-top: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-container {
+    margin-top: 50px;
+    padding: 1rem;
+  }
+
+  .landing-main-wrapper {
+    gap: 1rem;
+  }
+
+  .landing-logo {
+    width: 150px;
+  }
+
+  .main-title {
+    font-size: 1.4rem;
+  }
+
+  .main-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .toggle-option {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.7rem;
+    min-width: 90px;
+  }
+
+  .content-card {
+    padding: 1.2rem 1rem;
+    border-radius: 12px;
+  }
+
+  .content-card h2 {
+    font-size: 1.1rem;
+  }
+
+  .content-card p {
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .primary-btn-large {
+    padding: 0.65rem 1.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* About Section Responsive */
+@media (max-width: 1200px) {
+  .about-section {
+    padding: 3rem 1.5rem;
+  }
+
+  .about-title {
+    font-size: 2rem;
+  }
+
+  .about-text {
+    font-size: 0.95rem;
+  }
+
+  .vision-mission-card {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .vision-mission-divider {
+    display: block;
+    width: 100%;
+    height: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 2rem 1rem;
+    margin-top: 2rem;
+  }
+
+  .about-title {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .vision-mission-card {
+    padding: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  .vision-mission-title {
+    font-size: 1.3rem;
+  }
+
+  .vision-mission-text {
+    font-size: 0.9rem;
+  }
+
+  .vision-mission-list {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .about-title {
+    font-size: 1.3rem;
+  }
+
+  .about-text {
+    font-size: 0.85rem;
+  }
+
+  .vision-mission-card {
+    padding: 1.25rem;
+  }
+
+  .vision-mission-title {
+    font-size: 1.1rem;
+  }
+
+  .vision-mission-text {
+    font-size: 0.85rem;
+  }
+
+  .vision-mission-list {
+    font-size: 0.85rem;
+  }
+
+  .vision-mission-list li {
+    margin-bottom: 0.75rem;
+  }
+}

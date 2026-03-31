@@ -65,7 +65,7 @@ export default function StudentDashboard() {
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2>Career Portal</h2>
+          <h2>SNU Career Portal</h2>
           <span className="badge">Student</span>
         </div>
         

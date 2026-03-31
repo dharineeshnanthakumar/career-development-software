@@ -18,8 +18,9 @@ public class CV {
     @Column(nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
-    private String filePath;
+    @Lob
+    @Column(name = "file_data", nullable = false, columnDefinition = "LONGBLOB")
+    private byte[] data;
 
     @Column(nullable = false)
     private long fileSize;
@@ -63,12 +64,12 @@ public class CV {
         this.fileName = fileName;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public byte[] getData() {
+        return data;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
     public long getFileSize() {

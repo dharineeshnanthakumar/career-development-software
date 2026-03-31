@@ -27,10 +27,13 @@ import com.careerdevelopment.repository.JobRequirementRepository;
 import com.careerdevelopment.repository.StudentFeedbackRepository;
 import com.careerdevelopment.repository.StudentRepository;
 import com.careerdevelopment.security.SecurityUtils;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class StudentService {
@@ -42,7 +45,6 @@ public class StudentService {
     private final NotificationService notificationService;
     private final CompanyRepository companyRepository;
     private final StudentFeedbackRepository studentFeedbackRepository;
-    private final FileStorageService fileStorageService;
 
     public StudentService(
             SecurityUtils securityUtils,
@@ -52,8 +54,7 @@ public class StudentService {
             ApplicationRepository applicationRepository,
             NotificationService notificationService,
             CompanyRepository companyRepository,
-            StudentFeedbackRepository studentFeedbackRepository,
-            FileStorageService fileStorageService
+            StudentFeedbackRepository studentFeedbackRepository
     ) {
         this.securityUtils = securityUtils;
         this.studentRepository = studentRepository;
@@ -63,7 +64,6 @@ public class StudentService {
         this.notificationService = notificationService;
         this.companyRepository = companyRepository;
         this.studentFeedbackRepository = studentFeedbackRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     private Student getCurrentStudent() {
@@ -109,8 +109,27 @@ public class StudentService {
     public CvUploadResponse uploadCv(MultipartFile file) {
         Student s = getCurrentStudent();
 
-        // Validates extension and max size (<= 2MB).
-        FileStorageService.StoredFile stored = fileStorageService.storeCv(file);
+        String original = file.getOriginalFilename();
+        if (original == null || original.isBlank()) {
+            throw new ValidationException("CV original filename is missing");
+        }
+
+        String ext = extensionOf(original).toLowerCase(Locale.ROOT);
+        if (!ext.equals("pdf") && !ext.equals("docx")) {
+            throw new ValidationException("CV file must be PDF or DOCX");
+        }
+
+        long maxBytes = 2L * 1024L * 1024L;
+        if (file.getSize() > maxBytes) {
+            throw new ValidationException("CV file must be <= 2MB");
+        }
+
+        byte[] data;
+        try {
+            data = file.getBytes();
+        } catch (IOException e) {
+            throw new ValidationException("Failed to read CV file");
+        }
 
         // Remove existing active CV and unlink from applications to prevent FK constraint failures.
         cvRepository.findByStudent_IdAndIsActiveTrue(s.getId()).ifPresent(existing -> {
@@ -126,9 +145,9 @@ public class StudentService {
 
         CV cv = new CV();
         cv.setStudent(s);
-        cv.setFileName(stored.fileName());
-        cv.setFilePath(stored.filePath());
-        cv.setFileSize(stored.fileSize());
+        cv.setFileName(original);
+        cv.setFileSize(file.getSize());
+        cv.setData(data);
         cv.setActive(true);
         cvRepository.save(cv);
 
@@ -139,6 +158,11 @@ public class StudentService {
         res.setUploadedAt(cv.getUploadedAt());
         res.setActive(true);
         return res;
+    }
+
+    private String extensionOf(String fileName) {
+        int dot = fileName.lastIndexOf('.');
+        return dot >= 0 ? fileName.substring(dot + 1) : "";
     }
 
     public CvUploadResponse getActiveCv() {
@@ -279,8 +303,7 @@ public class StudentService {
         CV cv = cvRepository.findByStudent_IdAndIsActiveTrue(s.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No active CV found"));
 
-        org.springframework.core.io.Resource resource = fileStorageService.loadAsResource(cv.getFilePath());
+        org.springframework.core.io.Resource resource = new ByteArrayResource(cv.getData());
         return new CvDownload(resource, cv.getFileName());
     }
 }
-

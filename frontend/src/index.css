@@ -1,15 +1,15 @@
 :root {
-  --primary-bg: #0A1128; /* Dark blue */
-  --secondary-bg: #121E3D; /* Slightly lighter dark blue */
-  --accent-color: #007BFF; /* Bright blue for accents */
-  --text-main: #FFFFFF; /* White */
-  --text-muted: #A0ABC0; /* Muted white/blue */
-  --card-bg: rgba(255, 255, 255, 0.05); /* Glassmorphism card */
-  --card-border: rgba(255, 255, 255, 0.1);
-  --card-hover: rgba(255, 255, 255, 0.1);
+  --primary-bg: rgb(238, 238, 237); /* SNU Custom White */
+  --secondary-bg: rgb(238, 238, 237); /* SNU Custom White */
+  --accent-color: #0A4287; /* SNU Deep Blue */
+  --text-main: #0F172A; /* Near-Black Dark Slate for high contrast */
+  --text-muted: #64748B; /* Muted Slate for secondary text */
+  --card-bg: #FFFFFF;
+  --card-border: #E2E8F0;
+  --card-hover: #F1F5F9;
   --modal-bg: #FFFFFF; /* White modal */
-  --modal-text: #0A1128;
-  --transition: all 0.3s ease;
+  --modal-text: #0F172A;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -40,6 +40,6 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: radial-gradient(circle at top right, rgba(0, 123, 255, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+  background: radial-gradient(circle at top right, rgba(10, 66, 135, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at bottom left, rgba(100, 116, 139, 0.05) 0%, transparent 40%);
 }
