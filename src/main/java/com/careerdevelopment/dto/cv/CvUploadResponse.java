@@ -7,6 +7,7 @@ public class CvUploadResponse {
     private String fileName;
     private long fileSize;
     private Instant uploadedAt;
+    private String filePath;
     private boolean isActive;
 
     public Long getCvId() {
@@ -39,6 +40,14 @@ public class CvUploadResponse {
 
     public void setUploadedAt(Instant uploadedAt) {
         this.uploadedAt = uploadedAt;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public boolean isActive() {

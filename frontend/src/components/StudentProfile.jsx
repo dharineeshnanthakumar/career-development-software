@@ -275,7 +275,14 @@ export default function StudentProfile() {
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <div>
                   <strong style={{display: 'block', fontSize: '1.05rem', color: 'var(--accent-color)', marginBottom: '0.25rem'}}>{cvData.fileName}</strong>
-                  <span style={{fontSize: '0.85rem', color: 'var(--text-muted)'}}>Uploaded: {new Date(cvData.uploadedAt).toLocaleDateString()} • {(cvData.fileSize / 1024).toFixed(1)} KB</span>
+                  <div style={{fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem'}}>
+                    Uploaded: {new Date(cvData.uploadedAt).toLocaleDateString()} • {(cvData.fileSize / 1024).toFixed(1)} KB
+                  </div>
+                  {cvData.filePath && (
+                    <div style={{fontSize: '0.82rem', color: 'var(--text-muted)'}}>
+                      path: <code>{cvData.filePath}</code>
+                    </div>
+                  )}
                 </div>
                 <button 
                   type="button" 

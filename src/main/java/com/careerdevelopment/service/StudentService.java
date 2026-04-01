@@ -142,7 +142,7 @@ public class StudentService {
         cv.setFileName(original);
         cv.setFileSize(file.getSize());
         cv.setData(data);
-        cv.setFilePath(""); // required by DB schema without migration value
+        cv.setFilePath("/api/student/cv/download");
         cv.setActive(true);
         cvRepository.save(cv);
 
@@ -150,6 +150,7 @@ public class StudentService {
         res.setCvId(cv.getId());
         res.setFileName(cv.getFileName());
         res.setFileSize(cv.getFileSize());
+        res.setFilePath(cv.getFilePath());
         res.setUploadedAt(cv.getUploadedAt());
         res.setActive(true);
         return res;
@@ -169,6 +170,7 @@ public class StudentService {
         res.setCvId(cv.getId());
         res.setFileName(cv.getFileName());
         res.setFileSize(cv.getFileSize());
+        res.setFilePath(cv.getFilePath());
         res.setUploadedAt(cv.getUploadedAt());
         res.setActive(cv.isActive());
         return res;
