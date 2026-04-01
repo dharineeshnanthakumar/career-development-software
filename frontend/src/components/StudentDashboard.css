@@ -73,7 +73,7 @@
 
 .nav-item.active {
   background-color: var(--accent-color);
-  color: var(--text-main);
+  color: #fff;
   font-weight: 600;
 }
 
