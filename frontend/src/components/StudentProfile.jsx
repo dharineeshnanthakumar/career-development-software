@@ -43,9 +43,29 @@ export default function StudentProfile() {
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
+        const fileName = cvData?.fileName || 'resume';
+        const isPdf = fileName.toLowerCase().endsWith('.pdf');
+
+        if (isPdf) {
+          const previewWindow = window.open(url, '_blank', 'noopener,noreferrer');
+          if (!previewWindow) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          }
+
+          // Give the browser time to load the blob in the new tab before cleanup.
+          window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+          return;
+        }
+
         const a = document.createElement('a');
         a.href = url;
-        a.download = cvData.fileName || 'resume';
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -145,17 +165,18 @@ export default function StudentProfile() {
         body: formData
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setUploadMessage('CV uploaded successfully!');
         setCvFile(null);
         // Reset file input visually
         document.getElementById('cv-upload').value = '';
         fetchCv(); // refresh the visual CV indicator
       } else {
-        setUploadMessage(data.message || 'Failed to upload CV.');
+        setUploadMessage(data?.message || 'Failed to upload CV. Please use PDF, DOC, or DOCX file <= 2MB.');
       }
     } catch (err) {
-      setUploadMessage('Network error during upload.');
+      console.error('CV upload error', err);
+      setUploadMessage('Network error during upload. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -270,7 +291,7 @@ export default function StudentProfile() {
                     fontWeight: '600',
                     transition: 'all 0.3s ease'
                   }}>
-                  View File
+                  {cvData.fileName?.toLowerCase().endsWith('.pdf') ? 'View File' : 'Download File'}
                 </button>
               </div>
             </div>
@@ -297,6 +318,12 @@ export default function StudentProfile() {
                 width: '100%'
               }}
             />
+
+            {cvFile && (
+              <div style={{padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '6px', fontSize: '0.9rem', color: 'var(--text-main)'}}>
+                <strong>Selected file:</strong> {cvFile.name} ({(cvFile.size / 1024).toFixed(1)} KB)
+              </div>
+            )}
             
             <button 
               type="submit" 

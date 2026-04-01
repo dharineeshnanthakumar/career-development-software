@@ -25,6 +25,9 @@ public class CV {
     @Column(nullable = false)
     private long fileSize;
 
+    @Column(nullable = false)
+    private String filePath;
+
     @Column(nullable = false, updatable = false)
     private Instant uploadedAt;
 
@@ -78,6 +81,14 @@ public class CV {
 
     public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public Instant getUploadedAt() {

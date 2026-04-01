@@ -115,8 +115,8 @@ public class StudentService {
         }
 
         String ext = extensionOf(original).toLowerCase(Locale.ROOT);
-        if (!ext.equals("pdf") && !ext.equals("docx")) {
-            throw new ValidationException("CV file must be PDF or DOCX");
+        if (!ext.equals("pdf") && !ext.equals("docx") && !ext.equals("doc")) {
+            throw new ValidationException("CV file must be PDF, DOC or DOCX");
         }
 
         long maxBytes = 2L * 1024L * 1024L;
@@ -131,16 +131,10 @@ public class StudentService {
             throw new ValidationException("Failed to read CV file");
         }
 
-        // Remove existing active CV and unlink from applications to prevent FK constraint failures.
+        // Deactivate existing active CV instead of deleting it so we keep history and avoid FK issues.
         cvRepository.findByStudent_IdAndIsActiveTrue(s.getId()).ifPresent(existing -> {
-            java.util.List<Application> apps = applicationRepository.findByStudent_Id(s.getId());
-            for (Application app : apps) {
-                if (app.getCv() != null && app.getCv().getId().equals(existing.getId())) {
-                    app.setCv(null);
-                    applicationRepository.save(app);
-                }
-            }
-            cvRepository.delete(existing);
+            existing.setActive(false);
+            cvRepository.save(existing);
         });
 
         CV cv = new CV();
@@ -148,6 +142,7 @@ public class StudentService {
         cv.setFileName(original);
         cv.setFileSize(file.getSize());
         cv.setData(data);
+        cv.setFilePath(""); // required by DB schema without migration value
         cv.setActive(true);
         cvRepository.save(cv);
 
