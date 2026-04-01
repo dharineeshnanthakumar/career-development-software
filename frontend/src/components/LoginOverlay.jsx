@@ -18,7 +18,13 @@ export default function LoginOverlay({ role, onClose }) {
     rollNumber: '',
     department: '',
     graduationYear: '',
-    phone: ''
+    phone: '',
+    // Company fields
+    industry: '',
+    website: '',
+    contactPerson: '',
+    contactEmail: '',
+    contactPhone: ''
   });
 
   // Reset state when role changes or modal opens
@@ -28,7 +34,8 @@ export default function LoginOverlay({ role, onClose }) {
     setSuccess(null);
     setFormData({
       username: '', email: '', password: '', name: '', 
-      rollNumber: '', department: '', graduationYear: '', phone: ''
+      rollNumber: '', department: '', graduationYear: '', phone: '',
+      industry: '', website: '', contactPerson: '', contactEmail: '', contactPhone: ''
     });
   }, [role]);
 
@@ -82,19 +89,36 @@ export default function LoginOverlay({ role, onClose }) {
     setLoading(true);
     setError(null);
 
-    // Only student has register fully spec'd visually in this particular prompt
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-      name: formData.name,
-      rollNumber: formData.rollNumber,
-      department: formData.department,
-      graduationYear: parseInt(formData.graduationYear),
-      phone: formData.phone
-    };
+    let payload;
+    let endpoint;
+
+    if (role === 'Student') {
+      payload = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        rollNumber: formData.rollNumber,
+        department: formData.department,
+        graduationYear: parseInt(formData.graduationYear),
+        phone: formData.phone
+      };
+      endpoint = 'http://localhost:8080/api/auth/register/student';
+    } else if (role === 'Company') {
+      payload = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        industry: formData.industry,
+        website: formData.website,
+        contactPerson: formData.contactPerson,
+        contactEmail: formData.contactEmail,
+        contactPhone: formData.contactPhone
+      };
+      endpoint = 'http://localhost:8080/api/auth/register/company';
+    }
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register/student', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -148,10 +172,14 @@ export default function LoginOverlay({ role, onClose }) {
                 <p>Don't have an account? <button type="button" onClick={handleToggleMode}>Register here</button></p>
               </div>
             )}
-            {/* Same could be done for Company if needed */}
+            {role === 'Company' && (
+              <div className="form-footer">
+                <p>Don't have an account? <button type="button" onClick={handleToggleMode}>Register here</button></p>
+              </div>
+            )}
           </form>
         ) : (
-          /* REGISTER FORM (STUDENT) */
+          /* REGISTER FORM */
           <form onSubmit={handleRegister}>
             <div className="input-group">
               <label>Full Name</label>
@@ -165,39 +193,68 @@ export default function LoginOverlay({ role, onClose }) {
               <label>Password</label>
               <input type="password" name="password" value={formData.password} onChange={handleChange} required />
             </div>
-            <div className="input-group">
-              <label>Roll Number</label>
-              <input type="text" name="rollNumber" value={formData.rollNumber} onChange={handleChange} required />
-            </div>
-            <div className="input-group">
-              <label>Department</label>
-              <select name="department" value={formData.department} onChange={handleChange} required>
-                <option value="" disabled>Select Department</option>
-                <option value="B.Tech. Chemical Engineering">B.Tech. Chemical Engineering</option>
-                <option value="B.Tech. Civil Engineering">B.Tech. Civil Engineering</option>
-                <option value="B.Tech. Computer Science and Engineering">B.Tech. Computer Science and Engineering</option>
-                <option value="B.Tech. Electrical and Computer Engineering">B.Tech. Electrical and Computer Engineering</option>
-                <option value="B.Tech. Mechanical Engineering">B.Tech. Mechanical Engineering</option>
-                <option value="Bachelor of Design (B.Des.)">Bachelor of Design (B.Des.)</option>
-                <option value="B.Sc. (Research) Economics">B.Sc. (Research) Economics</option>
-                <option value="B.A. (Research) International Relations">B.A. (Research) International Relations</option>
-                <option value="B.Sc. (Research) Biotechnology">B.Sc. (Research) Biotechnology</option>
-                <option value="B.Sc. (Research) Chemistry">B.Sc. (Research) Chemistry</option>
-                <option value="B.Sc. (Research) Mathematics">B.Sc. (Research) Mathematics</option>
-                <option value="B.Sc. (Research) Physics">B.Sc. (Research) Physics</option>
-                <option value="Bachelor of Management Studies (BMS)">Bachelor of Management Studies (BMS)</option>
-              </select>
-            </div>
-            <div style={{display: 'flex', gap: '1rem'}}>
-              <div className="input-group" style={{flex: 1}}>
-                <label>Grad. Year</label>
-                <input type="number" name="graduationYear" value={formData.graduationYear} onChange={handleChange} required min="2000" max="2100"/>
-              </div>
-              <div className="input-group" style={{flex: 1}}>
-                <label>Phone Number</label>
-                <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
-              </div>
-            </div>
+            
+            {role === 'Student' ? (
+              <>
+                <div className="input-group">
+                  <label>Roll Number</label>
+                  <input type="text" name="rollNumber" value={formData.rollNumber} onChange={handleChange} required />
+                </div>
+                <div className="input-group">
+                  <label>Department</label>
+                  <select name="department" value={formData.department} onChange={handleChange} required>
+                    <option value="" disabled>Select Department</option>
+                    <option value="B.Tech. Chemical Engineering">B.Tech. Chemical Engineering</option>
+                    <option value="B.Tech. Civil Engineering">B.Tech. Civil Engineering</option>
+                    <option value="B.Tech. Computer Science and Engineering">B.Tech. Computer Science and Engineering</option>
+                    <option value="B.Tech. Electrical and Computer Engineering">B.Tech. Electrical and Computer Engineering</option>
+                    <option value="B.Tech. Mechanical Engineering">B.Tech. Mechanical Engineering</option>
+                    <option value="Bachelor of Design (B.Des.)">Bachelor of Design (B.Des.)</option>
+                    <option value="B.Sc. (Research) Economics">B.Sc. (Research) Economics</option>
+                    <option value="B.A. (Research) International Relations">B.A. (Research) International Relations</option>
+                    <option value="B.Sc. (Research) Biotechnology">B.Sc. (Research) Biotechnology</option>
+                    <option value="B.Sc. (Research) Chemistry">B.Sc. (Research) Chemistry</option>
+                    <option value="B.Sc. (Research) Mathematics">B.Sc. (Research) Mathematics</option>
+                    <option value="B.Sc. (Research) Physics">B.Sc. (Research) Physics</option>
+                    <option value="Bachelor of Management Studies (BMS)">Bachelor of Management Studies (BMS)</option>
+                  </select>
+                </div>
+                <div style={{display: 'flex', gap: '1rem'}}>
+                  <div className="input-group" style={{flex: 1}}>
+                    <label>Grad. Year</label>
+                    <input type="number" name="graduationYear" value={formData.graduationYear} onChange={handleChange} required min="2000" max="2100"/>
+                  </div>
+                  <div className="input-group" style={{flex: 1}}>
+                    <label>Phone Number</label>
+                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
+                  </div>
+                </div>
+              </>
+            ) : role === 'Company' ? (
+              <>
+                <div className="input-group">
+                  <label>Industry</label>
+                  <input type="text" name="industry" value={formData.industry} onChange={handleChange} required placeholder="e.g., Technology, Finance, Healthcare" />
+                </div>
+                <div className="input-group">
+                  <label>Website (Optional)</label>
+                  <input type="url" name="website" value={formData.website} onChange={handleChange} placeholder="https://www.example.com" />
+                </div>
+                <div className="input-group">
+                  <label>Contact Person</label>
+                  <input type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} required />
+                </div>
+                <div className="input-group">
+                  <label>Contact Email</label>
+                  <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} required />
+                </div>
+                <div className="input-group">
+                  <label>Contact Phone</label>
+                  <input type="text" name="contactPhone" value={formData.contactPhone} onChange={handleChange} required />
+                </div>
+              </>
+            ) : null}
+            
             <div className="form-actions">
               <button type="submit" className="primary-btn" disabled={loading}>
                 {loading ? 'Registering...' : 'Register'}

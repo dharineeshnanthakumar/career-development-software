@@ -108,6 +108,15 @@ public class AuthService {
             throw new UnauthorizedException("Invalid email or password");
         }
 
+        // Check if company is verified
+        if (user.getRole() == Role.ROLE_COMPANY) {
+            Company company = companyRepository.findByUser_Id(user.getId())
+                    .orElseThrow(() -> new UnauthorizedException("Company profile not found"));
+            if (!company.isVerified()) {
+                throw new UnauthorizedException("Your company account is pending verification by the admin. Please contact the administrator.");
+            }
+        }
+
         String token = jwtTokenUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
         return new LoginResponse(token);
     }
