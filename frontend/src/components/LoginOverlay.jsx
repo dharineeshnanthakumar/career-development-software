@@ -72,7 +72,11 @@ export default function LoginOverlay({ role, onClose }) {
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('role', role);
         setTimeout(() => {
-          navigate('/dashboard');
+          if (role === 'Admin') {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/dashboard');
+          }
         }, 1000);
       } else {
         setError(data.message || 'Invalid credentials');

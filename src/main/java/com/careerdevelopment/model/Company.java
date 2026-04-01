@@ -31,11 +31,11 @@ public class Company {
     @Column(nullable = false)
     private String contactEmail;
 
-    @Column(nullable = false)
+    @Column
     private String contactPhone;
 
-    @Column(nullable = false)
-    private boolean isVerified = false;
+    @Column
+    private Boolean isVerified;
 
     @Column(nullable = false, updatable = false)
     private Instant enrolledAt;
@@ -113,11 +113,11 @@ public class Company {
         this.contactPhone = contactPhone;
     }
 
-    public boolean isVerified() {
+    public Boolean isVerified() {
         return isVerified;
     }
 
-    public void setVerified(boolean verified) {
+    public void setVerified(Boolean verified) {
         isVerified = verified;
     }
 

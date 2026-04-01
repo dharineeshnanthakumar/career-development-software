@@ -1,5 +1,7 @@
 package com.careerdevelopment.dto.company;
 
+import java.time.Instant;
+
 public class CompanyProfileResponse {
     private Long companyId;
     private Long userId;
@@ -11,6 +13,7 @@ public class CompanyProfileResponse {
     private String contactEmail;
     private String contactPhone;
     private boolean isVerified;
+    private Instant enrolledAt;
 
     public Long getCompanyId() {
         return companyId;
@@ -90,6 +93,14 @@ public class CompanyProfileResponse {
 
     public void setVerified(boolean verified) {
         isVerified = verified;
+    }
+
+    public Instant getEnrolledAt() {
+        return enrolledAt;
+    }
+
+    public void setEnrolledAt(Instant enrolledAt) {
+        this.enrolledAt = enrolledAt;
     }
 }
 

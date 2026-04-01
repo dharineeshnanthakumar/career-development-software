@@ -21,27 +21,23 @@ export default function StudentDashboard() {
     if (!token || role?.toLowerCase() !== 'student') {
       navigate('/');
       return;
-    } 
-    
+    }
+
     setUser({ name: 'Student Viewer' });
 
     const fetchData = async () => {
       try {
         const jobsRes = await fetch('http://localhost:8080/api/student/jobs', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         const jobsData = await jobsRes.json();
-        if (jobsData.success && jobsData.data) {
-          setJobs(jobsData.data);
-        }
+        if (jobsData.success && jobsData.data) setJobs(jobsData.data);
 
         const appsRes = await fetch('http://localhost:8080/api/student/applications', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         const appsData = await appsRes.json();
-        if (appsData.success && appsData.data) {
-          setApplications(appsData.data);
-        }
+        if (appsData.success && appsData.data) setApplications(appsData.data);
       } catch (err) {
         console.error("Error fetching dashboard data", err);
       } finally {
@@ -62,20 +58,32 @@ export default function StudentDashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar Navigation */}
+
+      {/* ===== SIDEBAR ===== */}
       <aside className="sidebar">
         <div className="sidebar-header">
           <h2>SNU Career Portal</h2>
           <span className="badge">Student</span>
         </div>
-        
+
         <nav className="sidebar-nav">
-          <button className={`nav-item ${activeTab === 'Overview' ? 'active' : ''}`} onClick={() => setActiveTab('Overview')}>Overview</button>
-          <button className={`nav-item ${activeTab === 'Jobs' ? 'active' : ''}`} onClick={() => setActiveTab('Jobs')}>Search Jobs</button>
-          <button className={`nav-item ${activeTab === 'Applications' ? 'active' : ''}`} onClick={() => setActiveTab('Applications')}>Applications</button>
-          <button className={`nav-item ${activeTab === 'Profile' ? 'active' : ''}`} onClick={() => setActiveTab('Profile')}>My Profile</button>
+          <button className={`nav-item ${activeTab === 'Overview' ? 'active' : ''}`} onClick={() => setActiveTab('Overview')}>
+            Overview
+          </button>
+
+          <button className={`nav-item ${activeTab === 'Jobs' ? 'active' : ''}`} onClick={() => setActiveTab('Jobs')}>
+            Search Jobs
+          </button>
+
+          <button className={`nav-item ${activeTab === 'Applications' ? 'active' : ''}`} onClick={() => setActiveTab('Applications')}>
+            Applications
+          </button>
+
+          <button className={`nav-item ${activeTab === 'Profile' ? 'active' : ''}`} onClick={() => setActiveTab('Profile')}>
+            My Profile
+          </button>
         </nav>
-        
+
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
             Sign Out
@@ -83,17 +91,40 @@ export default function StudentDashboard() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* ===== MAIN ===== */}
       <main className="dashboard-main">
-        {/* Floating About Card */}
 
-        {/* Tab Content */}
-        <div className="dashboard-content-tabs">
-          {activeTab === 'Overview' && <StudentOverview user={user} applications={applications} jobs={jobs} loadingData={loadingData} />}
-          {activeTab === 'Jobs' && <StudentJobs jobs={jobs} loadingData={loadingData} />}
-          {activeTab === 'Applications' && <StudentApplications applications={applications} loadingData={loadingData} />}
-          {activeTab === 'Profile' && <StudentProfile />}
+        {/* 🔵 FULL WIDTH NAVBAR */}
+        <div className="top-navbar">
+          <h1>Student Dashboard</h1>
         </div>
+
+        {/* ✅ GLOBAL CONTENT WRAPPER (THIS FIXES EVERYTHING) */}
+        <div className="dashboard-content-wrapper">
+
+          <div className="dashboard-content-tabs">
+            {activeTab === 'Overview' && (
+              <StudentOverview
+                user={user}
+                applications={applications}
+                jobs={jobs}
+                loadingData={loadingData}
+              />
+            )}
+
+            {activeTab === 'Jobs' && (
+              <StudentJobs jobs={jobs} loadingData={loadingData} />
+            )}
+
+            {activeTab === 'Applications' && (
+              <StudentApplications applications={applications} loadingData={loadingData} />
+            )}
+
+            {activeTab === 'Profile' && <StudentProfile />}
+          </div>
+
+        </div>
+
       </main>
     </div>
   );

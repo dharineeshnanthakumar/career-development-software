@@ -114,11 +114,11 @@ public class AdminService {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
 
-        boolean previouslyVerified = company.isVerified();
+        Boolean previouslyVerified = company.isVerified();
         company.setVerified(approve);
         companyRepository.save(company);
 
-        if (approve && !previouslyVerified) {
+        if (approve && (previouslyVerified == null || !previouslyVerified)) {
             List<Student> enrolled = studentRepository.findByIsEnrolledInPlacementTrue();
             for (Student s : enrolled) {
                 notificationService.create(
@@ -197,6 +197,7 @@ public class AdminService {
         res.setContactEmail(c.getContactEmail());
         res.setContactPhone(c.getContactPhone());
         res.setVerified(c.isVerified());
+        res.setEnrolledAt(c.getEnrolledAt());
         return res;
     }
 

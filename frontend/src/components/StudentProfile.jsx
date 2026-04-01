@@ -279,8 +279,7 @@ export default function StudentProfile() {
                     Uploaded: {new Date(cvData.uploadedAt).toLocaleDateString()} • {(cvData.fileSize / 1024).toFixed(1)} KB
                   </div>
                   {cvData.filePath && (
-                    <div style={{fontSize: '0.82rem', color: 'var(--text-muted)'}}>
-                      path: <code>{cvData.filePath}</code>
+                    <div style={{fontSize: '0.82rem', color: 'var(--text-muted)'}}>  
                     </div>
                   )}
                 </div>
