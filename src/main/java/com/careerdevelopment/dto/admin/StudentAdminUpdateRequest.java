@@ -19,6 +19,9 @@ public class StudentAdminUpdateRequest {
     @NotBlank
     private String phone;
 
+    @NotNull
+    private Double cgpa;
+
     private boolean isEnrolledInPlacement;
 
     public String getName() {
@@ -59,6 +62,14 @@ public class StudentAdminUpdateRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(Double cgpa) {
+        this.cgpa = cgpa;
     }
 
     public boolean isEnrolledInPlacement() {

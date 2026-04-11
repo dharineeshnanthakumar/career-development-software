@@ -27,6 +27,9 @@ public class Student {
     @Column(nullable = false)
     private int graduationYear;
 
+    @Column(nullable = true)
+    private Double cgpa;
+
     @Column(nullable = false)
     private String phone;
 
@@ -81,6 +84,14 @@ public class Student {
 
     public void setGraduationYear(int graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public Double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(Double cgpa) {
+        this.cgpa = cgpa;
     }
 
     public String getPhone() {

@@ -66,6 +66,7 @@ public class AuthService {
         student.setRollNumber(request.getRollNumber());
         student.setDepartment(request.getDepartment());
         student.setGraduationYear(request.getGraduationYear());
+        student.setCgpa(request.getCgpa());
         student.setPhone(request.getPhone());
         student.setEnrolledInPlacement(false);
 
@@ -141,6 +142,7 @@ public class AuthService {
         res.setRollNumber(student.getRollNumber());
         res.setDepartment(student.getDepartment());
         res.setGraduationYear(student.getGraduationYear());
+        res.setCgpa(student.getCgpa());
         res.setPhone(student.getPhone());
         res.setEnrolledInPlacement(student.isEnrolledInPlacement());
         return res;

@@ -19,9 +19,14 @@ public class AdminStudentController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<com.careerdevelopment.dto.api.ApiResponse<List<StudentProfileResponse>>> listStudents() {
+    public ResponseEntity<com.careerdevelopment.dto.api.ApiResponse<List<StudentProfileResponse>>> listStudents(
+            @RequestParam(value = "course", required = false) String course,
+            @RequestParam(value = "graduationYear", required = false) Integer graduationYear,
+            @RequestParam(value = "minCgpa", required = false) Double minCgpa,
+            @RequestParam(value = "maxCgpa", required = false) Double maxCgpa
+    ) {
         return ResponseEntity.ok(
-                com.careerdevelopment.dto.api.ApiResponse.success("Students retrieved successfully", adminService.listStudents())
+                com.careerdevelopment.dto.api.ApiResponse.success("Students retrieved successfully", adminService.listStudents(course, graduationYear, minCgpa, maxCgpa))
         );
     }
 

@@ -293,3 +293,82 @@
 .reject-btn:hover {
   background: rgba(239, 68, 68, 0.12);
 }
+
+.student-filter {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-field label {
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+.filter-field input {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background-color: var(--primary-bg);
+}
+
+.filter-actions {
+  grid-column: span 2;
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+}
+
+.apply-filter-btn,
+.reset-filter-btn {
+  height: 38px;
+  padding: 0 0.8rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background-color: var(--accent-color);
+  color: #fff;
+  cursor: pointer;
+}
+
+.reset-filter-btn {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+}
+
+.student-list {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.student-list table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+}
+
+.student-list th,
+.student-list td {
+  border: 1px solid var(--card-border);
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.student-list th {
+  background: var(--secondary-bg);
+  font-weight: 700;
+}
+
+.student-list tbody tr:nth-child(even) {
+  background: var(--primary-bg);
+}

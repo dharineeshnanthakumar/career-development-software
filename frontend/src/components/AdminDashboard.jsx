@@ -9,6 +9,13 @@ export default function AdminDashboard() {
   const [showCompaniesDropdown, setShowCompaniesDropdown] = useState(false);
   const [activeCompanyOption, setActiveCompanyOption] = useState('Pending Companies');
   const [companies, setCompanies] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [studentFilters, setStudentFilters] = useState({
+    course: '',
+    graduationYear: '',
+    minCgpa: '',
+    maxCgpa: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -35,7 +42,10 @@ export default function AdminDashboard() {
     if (activeTab === 'Companies') {
       loadCompanies();
     }
-  }, [navigate, activeTab, activeCompanyOption]);
+    if (activeTab === 'Students') {
+      loadStudents();
+    }
+  }, [navigate, activeTab, activeCompanyOption, studentFilters]);
 
   const loadCompanies = async () => {
     setLoading(true);
@@ -59,6 +69,35 @@ export default function AdminDashboard() {
         }
       } else {
         setError(data.message || 'Failed to fetch companies');
+      }
+    } catch (e) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStudents = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams();
+      if (studentFilters.course) params.append('course', studentFilters.course);
+      if (studentFilters.graduationYear) params.append('graduationYear', studentFilters.graduationYear);
+      if (studentFilters.minCgpa) params.append('minCgpa', studentFilters.minCgpa);
+      if (studentFilters.maxCgpa) params.append('maxCgpa', studentFilters.maxCgpa);
+
+      const res = await fetch(`http://localhost:8080/api/admin/students/?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStudents(data.data);
+      } else {
+        setError(data.message || 'Failed to fetch students');
       }
     } catch (e) {
       setError('Network error');
@@ -109,7 +148,113 @@ export default function AdminDashboard() {
     navigate('/');
   };
 
+  const handleStudentFilterChange = (field, value) => {
+    setStudentFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetStudentFilters = () => {
+    setStudentFilters({ course: '', graduationYear: '', minCgpa: '', maxCgpa: '' });
+  };
+
   const renderMainContent = () => {
+    if (activeTab === 'Students') {
+      return (
+        <div className="students-content">
+          <h2>Students</h2>
+
+          <div className="student-filter">
+            <div className="filter-field">
+              <label>Course</label>
+              <input
+                type="text"
+                value={studentFilters.course}
+                onChange={e => handleStudentFilterChange('course', e.target.value)}
+                placeholder="Department / course"
+              />
+            </div>
+            <div className="filter-field">
+              <label>Graduation Year</label>
+              <input
+                type="number"
+                min="1900"
+                max="2100"
+                value={studentFilters.graduationYear}
+                onChange={e => handleStudentFilterChange('graduationYear', e.target.value)}
+                placeholder="e.g. 2025"
+              />
+            </div>
+            <div className="filter-field">
+              <label>Min CGPA</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                max="10"
+                value={studentFilters.minCgpa}
+                onChange={e => handleStudentFilterChange('minCgpa', e.target.value)}
+                placeholder="e.g. 7.5"
+              />
+            </div>
+            <div className="filter-field">
+              <label>Max CGPA</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                max="10"
+                value={studentFilters.maxCgpa}
+                onChange={e => handleStudentFilterChange('maxCgpa', e.target.value)}
+                placeholder="e.g. 9.5"
+              />
+            </div>
+
+            <div className="filter-actions">
+              <button className="apply-filter-btn" onClick={loadStudents}>Apply</button>
+              <button className="reset-filter-btn" onClick={() => { resetStudentFilters(); loadStudents(); }}>Reset</button>
+            </div>
+          </div>
+
+          {loading && <div className="empty-box">Loading students...</div>}
+          {error && <div className="error-box">{error}</div>}
+
+          {!loading && !error && students.length === 0 && (
+            <div className="empty-box">No students found</div>
+          )}
+
+          {!loading && !error && students.length > 0 && (
+            <div className="student-list">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Roll Number</th>
+                    <th>Course</th>
+                    <th>Graduation Year</th>
+                    <th>CGPA</th>
+                    <th>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map(student => (
+                    <tr key={student.studentId}>
+                      <td>{student.name}</td>
+                      <td>{student.email}</td>
+                      <td>{student.rollNumber}</td>
+                      <td>{student.department}</td>
+                      <td>{student.graduationYear}</td>
+                      <td>{student.cgpa ?? 'N/A'}</td>
+                      <td>{student.phone}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (activeTab !== 'Companies') {
       return (
         <div className="empty-box">

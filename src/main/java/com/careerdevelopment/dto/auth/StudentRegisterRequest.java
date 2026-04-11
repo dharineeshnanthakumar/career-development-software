@@ -27,6 +27,9 @@ public class StudentRegisterRequest {
     @NotBlank
     private String phone;
 
+    @NotNull
+    private Double cgpa;
+
     public String getEmail() {
         return email;
     }
@@ -81,6 +84,14 @@ public class StudentRegisterRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(Double cgpa) {
+        this.cgpa = cgpa;
     }
 }
 

@@ -82,6 +82,7 @@ public class StudentService {
         res.setRollNumber(s.getRollNumber());
         res.setDepartment(s.getDepartment());
         res.setGraduationYear(s.getGraduationYear());
+        res.setCgpa(s.getCgpa());
         res.setPhone(s.getPhone());
         res.setEnrolledInPlacement(s.isEnrolledInPlacement());
         return res;
@@ -100,6 +101,7 @@ public class StudentService {
         s.setRollNumber(request.getRollNumber());
         s.setDepartment(request.getDepartment());
         s.setGraduationYear(request.getGraduationYear());
+        s.setCgpa(request.getCgpa());
         s.setPhone(request.getPhone());
 
         studentRepository.save(s);

@@ -57,8 +57,14 @@ public class AdminService {
         this.notificationService = notificationService;
     }
 
-    public List<StudentProfileResponse> listStudents() {
-        return studentRepository.findAll().stream().map(this::toStudentProfileResponse).toList();
+    public List<StudentProfileResponse> listStudents(String department, Integer graduationYear, Double minCgpa, Double maxCgpa) {
+        return studentRepository.findAll().stream()
+                .filter(s -> department == null || department.isBlank() || s.getDepartment().toLowerCase().contains(department.toLowerCase()))
+                .filter(s -> graduationYear == null || s.getGraduationYear() == graduationYear)
+                .filter(s -> minCgpa == null || (s.getCgpa() != null && s.getCgpa() >= minCgpa))
+                .filter(s -> maxCgpa == null || (s.getCgpa() != null && s.getCgpa() <= maxCgpa))
+                .map(this::toStudentProfileResponse)
+                .toList();
     }
 
     public void enrollStudent(Long studentId) {
@@ -82,6 +88,7 @@ public class AdminService {
         s.setRollNumber(request.getRollNumber());
         s.setDepartment(request.getDepartment());
         s.setGraduationYear(request.getGraduationYear());
+        s.setCgpa(request.getCgpa());
         s.setPhone(request.getPhone());
         s.setEnrolledInPlacement(request.isEnrolledInPlacement());
 
@@ -180,6 +187,7 @@ public class AdminService {
         res.setRollNumber(s.getRollNumber());
         res.setDepartment(s.getDepartment());
         res.setGraduationYear(s.getGraduationYear());
+        res.setCgpa(s.getCgpa());
         res.setPhone(s.getPhone());
         res.setEnrolledInPlacement(s.isEnrolledInPlacement());
         return res;

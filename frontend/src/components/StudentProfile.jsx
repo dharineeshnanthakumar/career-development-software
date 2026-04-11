@@ -6,7 +6,7 @@ export default function StudentProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ phone: '' });
+  const [editForm, setEditForm] = useState({ phone: '', cgpa: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   
   // State for CV upload
@@ -99,7 +99,7 @@ export default function StudentProfile() {
   };
 
   const handleEditClick = () => {
-    setEditForm({ phone: profile?.phone || '' });
+    setEditForm({ phone: profile?.phone || '', cgpa: profile?.cgpa ?? '' });
     setIsEditing(true);
   };
 
@@ -112,7 +112,8 @@ export default function StudentProfile() {
         rollNumber: profile.rollNumber,
         department: profile.department,
         graduationYear: profile.graduationYear,
-        phone: editForm.phone
+        phone: editForm.phone,
+        cgpa: parseFloat(editForm.cgpa) || 0
       };
       
       const res = await fetch('http://localhost:8080/api/student/profile', {
@@ -241,6 +242,23 @@ export default function StudentProfile() {
             <div>
               <label style={{color: 'var(--text-muted)', fontSize: '0.85rem'}}>Graduation Year</label>
               <div style={{fontSize: '1.05rem', marginTop: '0.25rem'}}>{profile?.graduationYear || 'N/A'}</div>
+            </div>
+            <div>
+              <label style={{color: 'var(--text-muted)', fontSize: '0.85rem'}}>CGPA</label>
+              {isEditing ? (
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="10"
+                  value={editForm.cgpa}
+                  onChange={(e) => setEditForm({...editForm, cgpa: e.target.value})}
+                  style={{width: '100%', padding: '0.6rem', marginTop: '0.25rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--accent-color)', borderRadius: '4px', color: 'var(--text-main)', fontSize: '1rem'}}
+                  placeholder="Enter CGPA"
+                />
+              ) : (
+                <div style={{fontSize: '1.05rem', marginTop: '0.25rem'}}>{profile?.cgpa ?? 'N/A'}</div>
+              )}
             </div>
             <div>
               <label style={{color: 'var(--text-muted)', fontSize: '0.85rem'}}>Phone</label>

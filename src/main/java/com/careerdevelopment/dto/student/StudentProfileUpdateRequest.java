@@ -19,6 +19,9 @@ public class StudentProfileUpdateRequest {
     @NotBlank
     private String phone;
 
+    @NotNull
+    private Double cgpa;
+
     public String getName() {
         return name;
     }
@@ -57,6 +60,14 @@ public class StudentProfileUpdateRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(Double cgpa) {
+        this.cgpa = cgpa;
     }
 }
 

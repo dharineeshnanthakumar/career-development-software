@@ -8,6 +8,7 @@ public class StudentProfileResponse {
     private String rollNumber;
     private String department;
     private int graduationYear;
+    private Double cgpa;
     private String phone;
     private boolean isEnrolledInPlacement;
 
@@ -65,6 +66,14 @@ public class StudentProfileResponse {
 
     public void setGraduationYear(int graduationYear) {
         this.graduationYear = graduationYear;
+    }
+
+    public Double getCgpa() {
+        return cgpa;
+    }
+
+    public void setCgpa(Double cgpa) {
+        this.cgpa = cgpa;
     }
 
     public String getPhone() {
