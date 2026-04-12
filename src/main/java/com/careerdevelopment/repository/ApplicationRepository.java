@@ -15,6 +15,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     Optional<Application> findByIdAndStudent_Id(Long id, Long studentId);
 
+    boolean existsByStudent_IdAndJobRequirement_Id(Long studentId, Long jobRequirementId);
+
     void deleteByStudent_Id(Long studentId);
 
     void deleteByJobRequirement_Id(Long jobRequirementId);

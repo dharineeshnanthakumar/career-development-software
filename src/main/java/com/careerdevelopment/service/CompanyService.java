@@ -118,13 +118,13 @@ public class CompanyService {
         job.setStatus(JobStatus.OPEN);
         jobRequirementRepository.save(job);
 
-        // Notify all enrolled students.
-        List<Student> enrolled = studentRepository.findByIsEnrolledInPlacementTrue();
-        for (Student s : enrolled) {
+        // Notify all students about the new job posting.
+        List<Student> allStudents = studentRepository.findAll();
+        for (Student s : allStudents) {
             notificationService.create(
                     s.getUser(),
                     "New job posted: " + job.getTitle(),
-                    "A new job requirement is now open for applications.",
+                    "A new job requirement from " + c.getName() + " is now open for applications.",
                     NotificationType.JOB_POSTED
             );
         }

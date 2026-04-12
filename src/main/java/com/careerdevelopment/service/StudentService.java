@@ -204,6 +204,12 @@ public class StudentService {
             throw new ValidationException("Job is not open");
         }
 
+        // Check if student has already applied to this job
+        boolean alreadyApplied = applicationRepository.existsByStudent_IdAndJobRequirement_Id(s.getId(), jobId);
+        if (alreadyApplied) {
+            throw new ValidationException("You have already applied to this job");
+        }
+
         CV activeCv = cvRepository.findByStudent_IdAndIsActiveTrue(s.getId())
                 .orElseThrow(() -> new ValidationException("Active CV is required to apply"));
 

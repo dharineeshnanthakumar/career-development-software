@@ -13,6 +13,8 @@ export default function StudentDashboard() {
   const [applications, setApplications] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState('Overview');
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,6 +40,12 @@ export default function StudentDashboard() {
         });
         const appsData = await appsRes.json();
         if (appsData.success && appsData.data) setApplications(appsData.data);
+
+        const notifsRes = await fetch('http://localhost:8080/api/student/notifications', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const notifsData = await notifsRes.json();
+        if (notifsData.success && notifsData.data) setNotifications(notifsData.data);
       } catch (err) {
         console.error("Error fetching dashboard data", err);
       } finally {
@@ -52,6 +60,21 @@ export default function StudentDashboard() {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     navigate('/');
+  };
+
+  const markAsRead = async (notificationId) => {
+    const token = localStorage.getItem('token');
+    try {
+      await fetch(`http://localhost:8080/api/student/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(notifications.map(n =>
+        n.id === notificationId ? { ...n, read: true } : n
+      ));
+    } catch (err) {
+      console.error("Error marking notification as read", err);
+    }
   };
 
   if (!user) return <div className="loading-screen">Loading dashboard...</div>;
@@ -81,6 +104,13 @@ export default function StudentDashboard() {
 
           <button className={`nav-item ${activeTab === 'Profile' ? 'active' : ''}`} onClick={() => setActiveTab('Profile')}>
             My Profile
+          </button>
+
+          <button className="nav-item notification-btn" onClick={() => setShowNotifications(true)}>
+            Notifications
+            {notifications.filter(n => !n.read).length > 0 && (
+              <span className="notification-badge">{notifications.filter(n => !n.read).length}</span>
+            )}
           </button>
         </nav>
 
@@ -126,6 +156,40 @@ export default function StudentDashboard() {
         </div>
 
       </main>
+
+      {/* Notification Modal */}
+      {showNotifications && (
+        <div className="notification-modal-overlay" onClick={() => setShowNotifications(false)}>
+          <div className="notification-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="notification-modal-header">
+              <h3>Notifications</h3>
+              <button className="close-btn" onClick={() => setShowNotifications(false)}>×</button>
+            </div>
+            <div className="notification-modal-body">
+              {notifications.length === 0 ? (
+                <p className="no-notifications">No notifications yet</p>
+              ) : (
+                notifications.map(notification => (
+                  <div key={notification.id} className={`notification-item ${!notification.read ? 'unread' : ''}`}>
+                    <div className="notification-content">
+                      <p>{notification.message}</p>
+                      <small>{new Date(notification.createdAt).toLocaleDateString()}</small>
+                    </div>
+                    {!notification.read && (
+                      <button
+                        className="mark-read-btn"
+                        onClick={() => markAsRead(notification.id)}
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

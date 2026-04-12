@@ -8,6 +8,8 @@ export default function CompanyDashboard() {
   const [jobs, setJobs] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState('Overview');
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [jobForm, setJobForm] = useState({
     title: '',
     description: '',
@@ -39,6 +41,12 @@ export default function CompanyDashboard() {
         });
         const jobsData = await jobsRes.json();
         if (jobsData.success && jobsData.data) setJobs(jobsData.data);
+
+        const notifsRes = await fetch('http://localhost:8080/api/company/notifications', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const notifsData = await notifsRes.json();
+        if (notifsData.success && notifsData.data) setNotifications(notifsData.data);
       } catch (err) {
         console.error("Error fetching dashboard data", err);
       } finally {
@@ -53,6 +61,21 @@ export default function CompanyDashboard() {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     navigate('/');
+  };
+
+  const markAsRead = async (notificationId) => {
+    const token = localStorage.getItem('token');
+    try {
+      await fetch(`http://localhost:8080/api/company/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(notifications.map(n =>
+        n.id === notificationId ? { ...n, read: true } : n
+      ));
+    } catch (err) {
+      console.error("Error marking notification as read", err);
+    }
   };
 
   const handlePostJob = async (e) => {
@@ -135,7 +158,7 @@ export default function CompanyDashboard() {
               cursor: 'pointer'
             }}
           >
-            ← Back to Jobs
+             Back to Jobs
           </button>
           
           <h1>Applications for {job?.title}</h1>
@@ -472,6 +495,12 @@ export default function CompanyDashboard() {
           >
             My Jobs
           </button>
+          <button className="nav-item notification-btn" onClick={() => setShowNotifications(true)}>
+            Notifications
+            {notifications.filter(n => !n.read).length > 0 && (
+              <span className="notification-badge">{notifications.filter(n => !n.read).length}</span>
+            )}
+          </button>
           <button
             className={`nav-item ${activeTab === 'Profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('Profile')}
@@ -502,6 +531,40 @@ export default function CompanyDashboard() {
       <div className="main-content">
         {renderContent()}
       </div>
+
+      {/* Notification Modal */}
+      {showNotifications && (
+        <div className="notification-modal-overlay" onClick={() => setShowNotifications(false)}>
+          <div className="notification-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="notification-modal-header">
+              <h3>Notifications</h3>
+              <button className="close-btn" onClick={() => setShowNotifications(false)}>×</button>
+            </div>
+            <div className="notification-modal-body">
+              {notifications.length === 0 ? (
+                <p className="no-notifications">No notifications yet</p>
+              ) : (
+                notifications.map(notification => (
+                  <div key={notification.id} className={`notification-item ${!notification.read ? 'unread' : ''}`}>
+                    <div className="notification-content">
+                      <p>{notification.message}</p>
+                      <small>{new Date(notification.createdAt).toLocaleDateString()}</small>
+                    </div>
+                    {!notification.read && (
+                      <button
+                        className="mark-read-btn"
+                        onClick={() => markAsRead(notification.id)}
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
