@@ -372,3 +372,149 @@
 .student-list tbody tr:nth-child(even) {
   background: var(--primary-bg);
 }
+
+/* ===== JOBS CONTENT ===== */
+.jobs-content {
+  padding: 1rem 1.5rem;
+}
+
+.job-list {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.job-list table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+}
+
+.job-list th,
+.job-list td {
+  border: 1px solid var(--card-border);
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.job-list th {
+  background: var(--secondary-bg);
+  font-weight: 700;
+}
+
+.job-list tbody tr:nth-child(even) {
+  background: var(--primary-bg);
+}
+
+/* ===== APPLICATIONS CONTENT ===== */
+.applications-content {
+  padding: 1rem 1.5rem;
+}
+
+.application-list {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.application-list table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+}
+
+.application-list th,
+.application-list td {
+  border: 1px solid var(--card-border);
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.application-list th {
+  background: var(--secondary-bg);
+  font-weight: 700;
+}
+
+.application-list tbody tr:nth-child(even) {
+  background: var(--primary-bg);
+}
+
+/* ===== APPLICATION STATUS STYLING ===== */
+.status-pending {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.status-approved {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.status-rejected {
+  color: #f44336;
+  font-weight: 600;
+}
+
+/* ===== FEEDBACKS CONTENT ===== */
+.feedbacks-content {
+  padding: 1rem 1.5rem;
+}
+
+.feedback-section {
+  margin-bottom: 2rem;
+}
+
+.feedback-section h3 {
+  color: var(--text-main);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 0.5rem;
+}
+
+.feedback-table {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.feedback-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+}
+
+.feedback-table th,
+.feedback-table td {
+  border: 1px solid var(--card-border);
+  padding: 0.8rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.feedback-table th {
+  background: var(--secondary-bg);
+  font-weight: 700;
+}
+
+.feedback-table tbody tr:nth-child(even) {
+  background: var(--primary-bg);
+}
+
+.comments-cell {
+  max-width: 300px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* ===== RATING STYLING ===== */
+.rating {
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.rating-1 { background-color: #ffebee; color: #c62828; }
+.rating-2 { background-color: #fff3e0; color: #ef6c00; }
+.rating-3 { background-color: #fffde7; color: #f57f17; }
+.rating-4 { background-color: #f1f8e9; color: #2e7d32; }
+.rating-5 { background-color: #e8f5e8; color: #1b5e20; }

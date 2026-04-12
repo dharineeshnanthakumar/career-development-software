@@ -233,6 +233,7 @@ public class StudentService {
         res.setApplicationId(application.getId());
         res.setJobRequirementId(application.getJobRequirement().getId());
         res.setJobTitle(job.getTitle());
+        res.setCompanyId(job.getCompany().getId());
         res.setCompanyName(job.getCompany().getName());
         res.setStatus(application.getStatus());
         res.setAppliedAt(application.getAppliedAt());
@@ -247,6 +248,7 @@ public class StudentService {
                     res.setApplicationId(a.getId());
                     res.setJobRequirementId(a.getJobRequirement().getId());
                     res.setJobTitle(a.getJobRequirement().getTitle());
+                    res.setCompanyId(a.getJobRequirement().getCompany().getId());
                     res.setCompanyName(a.getJobRequirement().getCompany().getName());
                     res.setStatus(a.getStatus());
                     res.setAppliedAt(a.getAppliedAt());

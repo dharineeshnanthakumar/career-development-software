@@ -5,7 +5,9 @@ import java.time.Instant;
 public class CompanyFeedbackResponse {
     private Long id;
     private Long companyId;
+    private String companyName;
     private Long jobId;
+    private String jobTitle;
     private int rating;
     private String comments;
     private Instant submittedAt;
@@ -56,6 +58,22 @@ public class CompanyFeedbackResponse {
 
     public void setSubmittedAt(Instant submittedAt) {
         this.submittedAt = submittedAt;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
     }
 }
 

@@ -22,6 +22,7 @@ export default function CompanyDashboard() {
   const [viewingApplicationsForJob, setViewingApplicationsForJob] = useState(null);
   const [applications, setApplications] = useState([]);
   const [loadingApplications, setLoadingApplications] = useState(false);
+  const [statusUpdates, setStatusUpdates] = useState({});
   const [feedbackModal, setFeedbackModal] = useState({ show: false, jobId: null });
   const [feedbackForm, setFeedbackForm] = useState({ rating: 5, comments: '' });
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
@@ -141,6 +142,33 @@ export default function CompanyDashboard() {
       alert('Network error while fetching applications');
     } finally {
       setLoadingApplications(false);
+    }
+  };
+
+  const handleUpdateApplicationStatus = async (applicationId, status) => {
+    if (!status) return;
+
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:8080/api/company/applications/${applicationId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setApplications(applications.map(app => app.applicationId === applicationId ? { ...app, status: data.data.status } : app));
+        setStatusUpdates(prev => ({ ...prev, [applicationId]: data.data.status }));
+        alert('Application status updated successfully');
+      } else {
+        alert(data.message || 'Failed to update application status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while updating application status');
     }
   };
 
@@ -316,6 +344,40 @@ export default function CompanyDashboard() {
                     >
                       Download CV
                     </button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
+                      <select
+                        value={statusUpdates[app.applicationId] ?? app.status}
+                        onChange={(e) => setStatusUpdates(prev => ({ ...prev, [app.applicationId]: e.target.value }))}
+                        style={{
+                          padding: '0.5rem 0.75rem',
+                          borderRadius: '4px',
+                          border: '1px solid var(--card-border)',
+                          background: 'var(--secondary-bg)',
+                          color: 'var(--text-main)',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        <option value="APPLIED">APPLIED</option>
+                        <option value="SHORTLISTED">SHORTLISTED</option>
+                        <option value="INTERVIEW_SCHEDULED">INTERVIEW SCHEDULED</option>
+                        <option value="OFFERED">SELECTED</option>
+                        <option value="REJECTED">REJECTED</option>
+                      </select>
+                      <button
+                        style={{
+                          padding: '0.5rem 1rem',
+                          background: 'var(--accent-color)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '0.9rem'
+                        }}
+                        onClick={() => handleUpdateApplicationStatus(app.applicationId, statusUpdates[app.applicationId] ?? app.status)}
+                      >
+                        Update Status
+                      </button>
+                    </div>
                     <button
                       style={{
                         padding: '0.5rem 1rem',

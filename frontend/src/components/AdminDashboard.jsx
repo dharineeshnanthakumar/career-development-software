@@ -10,6 +10,10 @@ export default function AdminDashboard() {
   const [activeCompanyOption, setActiveCompanyOption] = useState('Pending Companies');
   const [companies, setCompanies] = useState([]);
   const [students, setStudents] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [companyFeedback, setCompanyFeedback] = useState([]);
+  const [studentFeedback, setStudentFeedback] = useState([]);
   const [studentFilters, setStudentFilters] = useState({
     course: '',
     graduationYear: '',
@@ -25,6 +29,7 @@ export default function AdminDashboard() {
     "Jobs",
     "Students",
     "Applications",
+    "Feedbacks",
     "Settings"
   ];
 
@@ -44,6 +49,16 @@ export default function AdminDashboard() {
     }
     if (activeTab === 'Students') {
       loadStudents();
+    }
+    if (activeTab === 'Jobs') {
+      loadJobs();
+    }
+    if (activeTab === 'Applications') {
+      loadApplications();
+    }
+    if (activeTab === 'Feedbacks') {
+      loadCompanyFeedback();
+      loadStudentFeedback();
     }
   }, [navigate, activeTab, activeCompanyOption, studentFilters]);
 
@@ -98,6 +113,98 @@ export default function AdminDashboard() {
         setStudents(data.data);
       } else {
         setError(data.message || 'Failed to fetch students');
+      }
+    } catch (e) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadJobs = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8080/api/admin/jobs/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setJobs(data.data);
+      } else {
+        setError(data.message || 'Failed to fetch jobs');
+      }
+    } catch (e) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadApplications = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8080/api/admin/applications/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setApplications(data.data);
+      } else {
+        setError(data.message || 'Failed to fetch applications');
+      }
+    } catch (e) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCompanyFeedback = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8080/api/admin/feedback/company', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCompanyFeedback(data.data);
+      } else {
+        setError(data.message || 'Failed to fetch company feedback');
+      }
+    } catch (e) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStudentFeedback = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8080/api/admin/feedback/student', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStudentFeedback(data.data);
+      } else {
+        setError(data.message || 'Failed to fetch student feedback');
       }
     } catch (e) {
       setError('Network error');
@@ -251,6 +358,192 @@ export default function AdminDashboard() {
               </table>
             </div>
           )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'Jobs') {
+      return (
+        <div className="jobs-content">
+          <h2>All Jobs</h2>
+
+          {loading && <div className="empty-box">Loading jobs...</div>}
+          {error && <div className="error-box">{error}</div>}
+
+          {!loading && !error && jobs.length === 0 && (
+            <div className="empty-box">No jobs found</div>
+          )}
+
+          {!loading && !error && jobs.length > 0 && (
+            <div className="job-list">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>CTC</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                    <th>Posted Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobs.map(job => (
+                    <tr key={job.jobId}>
+                      <td>{job.title}</td>
+                      <td>{job.companyName}</td>
+                      <td>{job.location}</td>
+                      <td>{job.ctc}</td>
+                      <td>{job.status}</td>
+                      <td>{job.deadline ? new Date(job.deadline).toLocaleDateString() : 'N/A'}</td>
+                      <td>{new Date(job.postedAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'Applications') {
+      return (
+        <div className="applications-content">
+          <h2>All Applications</h2>
+
+          {loading && <div className="empty-box">Loading applications...</div>}
+          {error && <div className="error-box">{error}</div>}
+
+          {!loading && !error && applications.length === 0 && (
+            <div className="empty-box">No applications found</div>
+          )}
+
+          {!loading && !error && applications.length > 0 && (
+            <div className="application-list">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th>Applied Date</th>
+                    <th>Last Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applications.map(app => (
+                    <tr key={app.applicationId}>
+                      <td>{app.studentName}</td>
+                      <td>{app.jobTitle}</td>
+                      <td>{app.companyName}</td>
+                      <td>
+                        <span className={`status-${app.status.toLowerCase()}`}>
+                          {app.status}
+                        </span>
+                      </td>
+                      <td>{new Date(app.appliedAt).toLocaleDateString()}</td>
+                      <td>{new Date(app.updatedAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'Feedbacks') {
+      return (
+        <div className="feedbacks-content">
+          <h2>Feedback Management</h2>
+
+          {/* Company Feedback Section */}
+          <div className="feedback-section">
+            <h3>Company Feedback</h3>
+            {loading && <div className="empty-box">Loading company feedback...</div>}
+            {error && <div className="error-box">{error}</div>}
+
+            {!loading && !error && companyFeedback.length === 0 && (
+              <div className="empty-box">No company feedback found</div>
+            )}
+
+            {!loading && !error && companyFeedback.length > 0 && (
+              <div className="feedback-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Company</th>
+                      <th>Job Title</th>
+                      <th>Rating</th>
+                      <th>Comments</th>
+                      <th>Submitted Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {companyFeedback.map(feedback => (
+                      <tr key={feedback.id}>
+                        <td>{feedback.companyName || 'N/A'}</td>
+                        <td>{feedback.jobTitle || 'N/A'}</td>
+                        <td>
+                          <span className={`rating rating-${feedback.rating}`}>
+                            {feedback.rating}/5 ⭐
+                          </span>
+                        </td>
+                        <td className="comments-cell">{feedback.comments}</td>
+                        <td>{new Date(feedback.submittedAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Student Feedback Section */}
+          <div className="feedback-section">
+            <h3>Student Feedback</h3>
+            {loading && <div className="empty-box">Loading student feedback...</div>}
+            {error && <div className="error-box">{error}</div>}
+
+            {!loading && !error && studentFeedback.length === 0 && (
+              <div className="empty-box">No student feedback found</div>
+            )}
+
+            {!loading && !error && studentFeedback.length > 0 && (
+              <div className="feedback-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Company</th>
+                      <th>Rating</th>
+                      <th>Comments</th>
+                      <th>Submitted Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {studentFeedback.map(feedback => (
+                      <tr key={feedback.id}>
+                        <td>{feedback.studentName || 'N/A'}</td>
+                        <td>{feedback.companyName || 'N/A'}</td>
+                        <td>
+                          <span className={`rating rating-${feedback.rating}`}>
+                            {feedback.rating}/5 ⭐
+                          </span>
+                        </td>
+                        <td className="comments-cell">{feedback.comments}</td>
+                        <td>{new Date(feedback.submittedAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       );
     }

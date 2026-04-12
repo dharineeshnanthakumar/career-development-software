@@ -5,6 +5,8 @@ import com.careerdevelopment.dto.admin.StudentAdminUpdateRequest;
 import com.careerdevelopment.dto.feedback.CompanyFeedbackResponse;
 import com.careerdevelopment.dto.feedback.StudentFeedbackResponse;
 import com.careerdevelopment.dto.student.StudentProfileResponse;
+import com.careerdevelopment.dto.job.JobResponse;
+import com.careerdevelopment.dto.application.ApplicationResponse;
 import com.careerdevelopment.exception.ResourceNotFoundException;
 import com.careerdevelopment.exception.ValidationException;
 import com.careerdevelopment.model.Company;
@@ -102,7 +104,6 @@ public class AdminService {
         User user = s.getUser();
 
         // company_feedback references applications, and applications references cv.
-        companyFeedbackRepository.deleteByStudent_Id(studentId);
         studentFeedbackRepository.deleteByStudent_Id(studentId);
         notificationRepository.deleteByRecipient_Id(user.getId());
 
@@ -178,6 +179,18 @@ public class AdminService {
                 .toList();
     }
 
+    public List<JobResponse> listAllJobs() {
+        return jobRequirementRepository.findAll().stream()
+                .map(this::toJobResponse)
+                .toList();
+    }
+
+    public List<ApplicationResponse> listAllApplications() {
+        return applicationRepository.findAll().stream()
+                .map(this::toApplicationResponse)
+                .toList();
+    }
+
     private StudentProfileResponse toStudentProfileResponse(Student s) {
         StudentProfileResponse res = new StudentProfileResponse();
         res.setStudentId(s.getId());
@@ -213,7 +226,9 @@ public class AdminService {
         CompanyFeedbackResponse res = new CompanyFeedbackResponse();
         res.setId(fb.getId());
         res.setCompanyId(fb.getCompany().getId());
+        res.setCompanyName(fb.getCompany().getName());
         res.setJobId(fb.getJobRequirement().getId());
+        res.setJobTitle(fb.getJobRequirement().getTitle());
         res.setRating(fb.getRating());
         res.setComments(fb.getComments());
         res.setSubmittedAt(fb.getSubmittedAt());
@@ -224,10 +239,42 @@ public class AdminService {
         StudentFeedbackResponse res = new StudentFeedbackResponse();
         res.setId(fb.getId());
         res.setStudentId(fb.getStudent().getId());
+        res.setStudentName(fb.getStudent().getName());
         res.setCompanyId(fb.getCompany().getId());
+        res.setCompanyName(fb.getCompany().getName());
         res.setRating(fb.getRating());
         res.setComments(fb.getComments());
         res.setSubmittedAt(fb.getSubmittedAt());
+        return res;
+    }
+
+    private JobResponse toJobResponse(JobRequirement job) {
+        JobResponse res = new JobResponse();
+        res.setJobId(job.getId());
+        res.setCompanyId(job.getCompany().getId());
+        res.setCompanyName(job.getCompany().getName());
+        res.setTitle(job.getTitle());
+        res.setDescription(job.getDescription());
+        res.setEligibilityCriteria(job.getEligibilityCriteria());
+        res.setLocation(job.getLocation());
+        res.setCtc(job.getCtc());
+        res.setDeadline(job.getDeadline());
+        res.setStatus(job.getStatus());
+        res.setPostedAt(job.getPostedAt());
+        return res;
+    }
+
+    private ApplicationResponse toApplicationResponse(com.careerdevelopment.model.Application app) {
+        ApplicationResponse res = new ApplicationResponse();
+        res.setApplicationId(app.getId());
+        res.setStudentId(app.getStudent().getId());
+        res.setStudentName(app.getStudent().getName());
+        res.setJobRequirementId(app.getJobRequirement().getId());
+        res.setJobTitle(app.getJobRequirement().getTitle());
+        res.setCompanyName(app.getJobRequirement().getCompany().getName());
+        res.setStatus(app.getStatus());
+        res.setAppliedAt(app.getAppliedAt());
+        res.setUpdatedAt(app.getAppliedAt()); // For now, using appliedAt as updatedAt
         return res;
     }
 }

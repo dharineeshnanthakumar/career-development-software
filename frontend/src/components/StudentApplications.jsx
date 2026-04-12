@@ -27,7 +27,7 @@ export default function StudentApplications({ applications, loadingData, onFeedb
               </thead>
               <tbody>
                 {applications.map(app => (
-                  <tr key={app.id} style={{borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.3s'}}>
+                  <tr key={app.applicationId} style={{borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.3s'}}>
                     <td style={{padding: '1rem'}}>{app.jobTitle || 'Unknown Role'}</td>
                     <td style={{padding: '1rem'}}>{app.companyName || 'Unknown Company'}</td>
                     <td style={{padding: '1rem'}}>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : 'N/A'}</td>
