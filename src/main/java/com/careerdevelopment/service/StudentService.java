@@ -197,9 +197,6 @@ public class StudentService {
 
     public ApplicationResponse applyToJob(Long jobId) {
         Student s = getCurrentStudent();
-        if (!s.isEnrolledInPlacement()) {
-            throw new ValidationException("Student is not enrolled in placement");
-        }
 
         JobRequirement job = jobRequirementRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
@@ -229,6 +226,8 @@ public class StudentService {
         ApplicationResponse res = new ApplicationResponse();
         res.setApplicationId(application.getId());
         res.setJobRequirementId(application.getJobRequirement().getId());
+        res.setJobTitle(job.getTitle());
+        res.setCompanyName(job.getCompany().getName());
         res.setStatus(application.getStatus());
         res.setAppliedAt(application.getAppliedAt());
         return res;
@@ -241,6 +240,8 @@ public class StudentService {
                     ApplicationResponse res = new ApplicationResponse();
                     res.setApplicationId(a.getId());
                     res.setJobRequirementId(a.getJobRequirement().getId());
+                    res.setJobTitle(a.getJobRequirement().getTitle());
+                    res.setCompanyName(a.getJobRequirement().getCompany().getName());
                     res.setStatus(a.getStatus());
                     res.setAppliedAt(a.getAppliedAt());
                     return res;
@@ -284,6 +285,7 @@ public class StudentService {
         JobResponse res = new JobResponse();
         res.setJobId(job.getId());
         res.setCompanyId(job.getCompany().getId());
+        res.setCompanyName(job.getCompany().getName());
         res.setTitle(job.getTitle());
         res.setDescription(job.getDescription());
         res.setEligibilityCriteria(job.getEligibilityCriteria());

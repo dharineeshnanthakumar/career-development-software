@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 
 export default function StudentJobs({ jobs, loadingData }) {
   const [applying, setApplying] = useState(null);
+  const [appliedJobs, setAppliedJobs] = useState(new Set());
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
 
-  const handleApply = async (jobId) => {
+  const handleApply = async (jobId, jobTitle) => {
     setApplying(jobId);
     setMessage('');
     try {
@@ -15,15 +17,23 @@ export default function StudentJobs({ jobs, loadingData }) {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage('Application submitted successfully!');
+        setMessageType('success');
+        setMessage(`Successfully applied for ${jobTitle}!`);
+        setAppliedJobs(prev => new Set(prev).add(jobId));
       } else {
-        setMessage(data.message || 'Failed to apply.');
+        setMessageType('error');
+        setMessage(data.message || 'Failed to apply. Please try again.');
       }
     } catch (err) {
-      setMessage('Network error occurred.');
+      setMessageType('error');
+      setMessage('Network error occurred. Please check your connection.');
+      console.error(err);
     } finally {
       setApplying(null);
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => {
+        setMessage('');
+        setMessageType('');
+      }, 4000);
     }
   };
 
@@ -36,7 +46,19 @@ export default function StudentJobs({ jobs, loadingData }) {
         </div>
       </header>
 
-      {message && <div style={{padding: '1rem', background: 'var(--card-bg)', border: '1px solid var(--accent-color)', borderRadius: '8px', marginBottom: '1rem', color: 'var(--text-main)'}}>{message}</div>}
+      {message && (
+        <div style={{
+          padding: '1rem',
+          background: messageType === 'success' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+          border: `1px solid ${messageType === 'success' ? '#22c55e' : '#ef4444'}`,
+          borderRadius: '8px',
+          marginBottom: '1rem',
+          color: messageType === 'success' ? '#22c55e' : '#ef4444',
+          fontWeight: '500'
+        }}>
+          {messageType === 'success' ? '✓ ' : '✗ '}{message}
+        </div>
+      )}
 
       <div className="widget-card">
         <div className="job-list">
@@ -44,7 +66,7 @@ export default function StudentJobs({ jobs, loadingData }) {
             <p style={{color: 'var(--text-muted)'}}>Loading jobs...</p>
           ) : jobs.length > 0 ? (
             jobs.map(job => (
-              <div className="job-item" key={job.id} style={{padding: '1.5rem'}}>
+              <div className="job-item" key={job.jobId} style={{padding: '1.5rem'}}>
                 <div className="job-logo" style={{width: '60px', height: '60px', fontSize: '1.5rem'}}>
                   {job.companyName ? job.companyName.charAt(0).toUpperCase() : 'J'}
                 </div>
@@ -55,11 +77,21 @@ export default function StudentJobs({ jobs, loadingData }) {
                 </div>
                 <button 
                   className="apply-btn" 
-                  onClick={() => handleApply(job.id)}
-                  disabled={applying === job.id}
-                  style={{padding: '0.75rem 1.5rem'}}
+                  onClick={() => handleApply(job.jobId, job.title)}
+                  disabled={applying === job.jobId || appliedJobs.has(job.jobId)}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: appliedJobs.has(job.jobId) ? '#888' : 'var(--accent-color)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: appliedJobs.has(job.jobId) ? 'not-allowed' : (applying === job.jobId ? 'wait' : 'pointer'),
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease'
+                  }}
                 >
-                  {applying === job.id ? 'Applying...' : 'Apply Now'}
+                  {applying === job.jobId ? 'Applying...' : appliedJobs.has(job.jobId) ? '✓ Applied' : 'Apply Now'}
                 </button>
               </div>
             ))

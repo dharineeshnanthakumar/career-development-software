@@ -7,6 +7,8 @@ import java.time.Instant;
 public class ApplicationResponse {
     private Long applicationId;
     private Long jobRequirementId;
+    private String jobTitle;
+    private String companyName;
     private ApplicationStatus status;
     private Instant appliedAt;
 
@@ -24,6 +26,22 @@ public class ApplicationResponse {
 
     public void setJobRequirementId(Long jobRequirementId) {
         this.jobRequirementId = jobRequirementId;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public ApplicationStatus getStatus() {

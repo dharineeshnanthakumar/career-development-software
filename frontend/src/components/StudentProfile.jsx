@@ -113,7 +113,7 @@ export default function StudentProfile() {
         department: profile.department,
         graduationYear: profile.graduationYear,
         phone: editForm.phone,
-        cgpa: parseFloat(editForm.cgpa) || 0
+        cgpa: editForm.cgpa.trim() === '' ? null : parseFloat(editForm.cgpa)
       };
       
       const res = await fetch('http://localhost:8080/api/student/profile', {

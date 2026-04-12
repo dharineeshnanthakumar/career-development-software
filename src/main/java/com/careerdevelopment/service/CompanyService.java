@@ -289,6 +289,7 @@ public class CompanyService {
         JobResponse res = new JobResponse();
         res.setJobId(job.getId());
         res.setCompanyId(job.getCompany().getId());
+        res.setCompanyName(job.getCompany().getName());
         res.setTitle(job.getTitle());
         res.setDescription(job.getDescription());
         res.setEligibilityCriteria(job.getEligibilityCriteria());

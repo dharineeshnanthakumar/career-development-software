@@ -74,6 +74,8 @@ export default function LoginOverlay({ role, onClose }) {
         setTimeout(() => {
           if (role === 'Admin') {
             navigate('/admin/dashboard');
+          } else if (role === 'Company') {
+            navigate('/company/dashboard');
           } else {
             navigate('/dashboard');
           }

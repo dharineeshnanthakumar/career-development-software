@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class JobResponse {
     private Long jobId;
     private Long companyId;
+    private String companyName;
     private String title;
     private String description;
     private String eligibilityCriteria;
@@ -31,6 +32,14 @@ public class JobResponse {
 
     public void setCompanyId(Long companyId) {
         this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getTitle() {

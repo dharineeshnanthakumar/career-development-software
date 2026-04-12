@@ -19,7 +19,6 @@ public class StudentProfileUpdateRequest {
     @NotBlank
     private String phone;
 
-    @NotNull
     private Double cgpa;
 
     public String getName() {
