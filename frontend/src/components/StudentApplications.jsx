@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function StudentApplications({ applications, loadingData }) {
+export default function StudentApplications({ applications, loadingData, onFeedback }) {
   return (
     <div className="tab-pane">
       <header className="dashboard-header">
@@ -22,6 +22,7 @@ export default function StudentApplications({ applications, loadingData }) {
                   <th style={{padding: '1rem', fontWeight: '500'}}>Company</th>
                   <th style={{padding: '1rem', fontWeight: '500'}}>Date Applied</th>
                   <th style={{padding: '1rem', fontWeight: '500'}}>Status</th>
+                  <th style={{padding: '1rem', fontWeight: '500'}}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -46,6 +47,23 @@ export default function StudentApplications({ applications, loadingData }) {
                       }}>
                         {app.status || 'PENDING'}
                       </span>
+                    </td>
+                    <td style={{padding: '1rem'}}>
+                      <button
+                        onClick={() => onFeedback(app.companyId)}
+                        style={{
+                          padding: '0.4rem 0.8rem',
+                          background: '#10b981',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Give Feedback
+                      </button>
                     </td>
                   </tr>
                 ))}

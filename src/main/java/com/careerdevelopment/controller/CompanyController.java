@@ -102,13 +102,13 @@ public class CompanyController {
         );
     }
 
-    @PostMapping("/feedback/student/{studentId}")
-    public ResponseEntity<com.careerdevelopment.dto.api.ApiResponse<CompanyFeedbackResponse>> submitStudentFeedback(
-            @PathVariable Long studentId,
+    @PostMapping("/feedback/job/{jobId}")
+    public ResponseEntity<com.careerdevelopment.dto.api.ApiResponse<CompanyFeedbackResponse>> submitJobFeedback(
+            @PathVariable Long jobId,
             @Valid @RequestBody CompanyFeedbackRequest request
     ) {
         return ResponseEntity.ok(
-                com.careerdevelopment.dto.api.ApiResponse.success("Feedback submitted successfully", companyService.submitFeedbackForStudent(studentId, request))
+                com.careerdevelopment.dto.api.ApiResponse.success("Feedback submitted successfully", companyService.submitFeedbackForJob(jobId, request))
         );
     }
 

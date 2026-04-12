@@ -6,23 +6,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class CompanyFeedbackRequest {
-    @NotNull
-    private Long applicationId;
-
     @Min(1)
     @Max(5)
     private int rating;
 
     @NotBlank
     private String comments;
-
-    public Long getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(Long applicationId) {
-        this.applicationId = applicationId;
-    }
 
     public int getRating() {
         return rating;

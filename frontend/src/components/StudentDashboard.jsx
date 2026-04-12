@@ -15,6 +15,9 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState('Overview');
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState({ show: false, companyId: null });
+  const [feedbackForm, setFeedbackForm] = useState({ rating: 5, comments: '' });
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -74,6 +77,44 @@ export default function StudentDashboard() {
       ));
     } catch (err) {
       console.error("Error marking notification as read", err);
+    }
+  };
+
+  const handleSubmitFeedback = async (e) => {
+    e.preventDefault();
+    if (!feedbackForm.comments.trim()) {
+      alert('Please enter feedback comments');
+      return;
+    }
+
+    setSubmittingFeedback(true);
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:8080/api/student/feedback/company/${feedbackModal.companyId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          rating: feedbackForm.rating,
+          comments: feedbackForm.comments
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        alert('Feedback submitted successfully!');
+        setFeedbackModal({ show: false, companyId: null });
+        setFeedbackForm({ rating: 5, comments: '' });
+      } else {
+        alert(data.message || 'Failed to submit feedback');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while submitting feedback');
+    } finally {
+      setSubmittingFeedback(false);
     }
   };
 
@@ -147,7 +188,7 @@ export default function StudentDashboard() {
             )}
 
             {activeTab === 'Applications' && (
-              <StudentApplications applications={applications} loadingData={loadingData} />
+              <StudentApplications applications={applications} loadingData={loadingData} onFeedback={(companyId) => setFeedbackModal({ show: true, companyId })} />
             )}
 
             {activeTab === 'Profile' && <StudentProfile />}
@@ -186,6 +227,102 @@ export default function StudentDashboard() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {feedbackModal.show && (
+        <div className="notification-modal-overlay" onClick={() => setFeedbackModal({ show: false, companyId: null })}>
+          <div className="notification-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="notification-modal-header">
+              <h3>Give Feedback to Company</h3>
+              <button className="close-btn" onClick={() => setFeedbackModal({ show: false, companyId: null })}>×</button>
+            </div>
+            <div style={{ padding: '1.5rem' }}>
+              <form onSubmit={handleSubmitFeedback}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>
+                    Rating (1-5)
+                  </label>
+                  <select
+                    value={feedbackForm.rating}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, rating: parseInt(e.target.value) })}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid var(--card-border)',
+                      borderRadius: '4px',
+                      background: 'var(--secondary-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    <option value={1}>1 - Poor</option>
+                    <option value={2}>2 - Fair</option>
+                    <option value={3}>3 - Good</option>
+                    <option value={4}>4 - Very Good</option>
+                    <option value={5}>5 - Excellent</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>
+                    Comments
+                  </label>
+                  <textarea
+                    value={feedbackForm.comments}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, comments: e.target.value })}
+                    placeholder="Share your feedback about the company and interview experience..."
+                    rows="4"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid var(--card-border)',
+                      borderRadius: '4px',
+                      background: 'var(--secondary-bg)',
+                      color: 'var(--text-main)',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setFeedbackModal({ show: false, companyId: null })}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'var(--secondary-bg)',
+                      color: 'var(--text-main)',
+                      border: '1px solid var(--card-border)',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingFeedback}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'var(--accent-color)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: submittingFeedback ? 'not-allowed' : 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    {submittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

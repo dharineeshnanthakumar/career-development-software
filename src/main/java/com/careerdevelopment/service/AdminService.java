@@ -213,8 +213,7 @@ public class AdminService {
         CompanyFeedbackResponse res = new CompanyFeedbackResponse();
         res.setId(fb.getId());
         res.setCompanyId(fb.getCompany().getId());
-        res.setStudentId(fb.getStudent().getId());
-        res.setApplicationId(fb.getApplication().getId());
+        res.setJobId(fb.getJobRequirement().getId());
         res.setRating(fb.getRating());
         res.setComments(fb.getComments());
         res.setSubmittedAt(fb.getSubmittedAt());

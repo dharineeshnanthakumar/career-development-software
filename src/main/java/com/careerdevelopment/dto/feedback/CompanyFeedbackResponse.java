@@ -5,8 +5,7 @@ import java.time.Instant;
 public class CompanyFeedbackResponse {
     private Long id;
     private Long companyId;
-    private Long studentId;
-    private Long applicationId;
+    private Long jobId;
     private int rating;
     private String comments;
     private Instant submittedAt;
@@ -27,20 +26,12 @@ public class CompanyFeedbackResponse {
         this.companyId = companyId;
     }
 
-    public Long getStudentId() {
-        return studentId;
+    public Long getJobId() {
+        return jobId;
     }
 
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
-    }
-
-    public Long getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(Long applicationId) {
-        this.applicationId = applicationId;
+    public void setJobId(Long jobId) {
+        this.jobId = jobId;
     }
 
     public int getRating() {

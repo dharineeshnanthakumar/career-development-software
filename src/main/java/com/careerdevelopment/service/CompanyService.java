@@ -246,25 +246,18 @@ public class CompanyService {
         return res;
     }
 
-    public CompanyFeedbackResponse submitFeedbackForStudent(Long studentId, CompanyFeedbackRequest request) {
+    public CompanyFeedbackResponse submitFeedbackForJob(Long jobId, CompanyFeedbackRequest request) {
         Company c = getCurrentCompany();
-        Student s = studentRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        JobRequirement job = jobRequirementRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
-        Application app = applicationRepository.findById(request.getApplicationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
-
-        if (!app.getStudent().getId().equals(s.getId())) {
-            throw new ValidationException("Application does not belong to the given student");
-        }
-        if (!app.getJobRequirement().getCompany().getId().equals(c.getId())) {
-            throw new ValidationException("Application does not belong to your company");
+        if (!job.getCompany().getId().equals(c.getId())) {
+            throw new ValidationException("Job does not belong to your company");
         }
 
         CompanyFeedback fb = new CompanyFeedback();
         fb.setCompany(c);
-        fb.setStudent(s);
-        fb.setApplication(app);
+        fb.setJobRequirement(job);
         fb.setRating(request.getRating());
         fb.setComments(request.getComments());
         companyFeedbackRepository.save(fb);
@@ -272,8 +265,7 @@ public class CompanyService {
         CompanyFeedbackResponse res = new CompanyFeedbackResponse();
         res.setId(fb.getId());
         res.setCompanyId(c.getId());
-        res.setStudentId(s.getId());
-        res.setApplicationId(app.getId());
+        res.setJobId(job.getId());
         res.setRating(fb.getRating());
         res.setComments(fb.getComments());
         res.setSubmittedAt(fb.getSubmittedAt());

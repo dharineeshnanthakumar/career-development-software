@@ -16,12 +16,8 @@ public class CompanyFeedback {
     private Company company;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id", nullable = false)
-    private Application application;
+    @JoinColumn(name = "job_id", nullable = false)
+    private JobRequirement jobRequirement;
 
     @Column(nullable = false)
     private int rating;
@@ -57,20 +53,12 @@ public class CompanyFeedback {
         this.company = company;
     }
 
-    public Student getStudent() {
-        return student;
+    public JobRequirement getJobRequirement() {
+        return jobRequirement;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
-    public Application getApplication() {
-        return application;
-    }
-
-    public void setApplication(Application application) {
-        this.application = application;
+    public void setJobRequirement(JobRequirement jobRequirement) {
+        this.jobRequirement = jobRequirement;
     }
 
     public int getRating() {
