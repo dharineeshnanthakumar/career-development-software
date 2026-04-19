@@ -94,7 +94,7 @@ public class AuthService {
         company.setContactPerson(request.getContactPerson());
         company.setContactEmail(request.getContactEmail().toLowerCase());
         company.setContactPhone(request.getContactPhone());
-        company.setVerified(false);
+        company.setVerified(null);
 
         companyRepository.save(company);
 
@@ -113,7 +113,7 @@ public class AuthService {
         if (user.getRole() == Role.ROLE_COMPANY) {
             Company company = companyRepository.findByUser_Id(user.getId())
                     .orElseThrow(() -> new UnauthorizedException("Company profile not found"));
-            if (Boolean.FALSE.equals(company.isVerified())) {
+            if (!Boolean.TRUE.equals(company.isVerified())) {
                 throw new UnauthorizedException("Your company account is pending verification by the admin. Please contact the administrator.");
             }
         }

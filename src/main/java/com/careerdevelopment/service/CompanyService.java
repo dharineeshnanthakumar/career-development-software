@@ -99,7 +99,7 @@ public class CompanyService {
 
     public JobResponse postJob(JobCreateRequest request) {
         Company c = getCurrentCompany();
-        if (!c.isVerified()) {
+        if (!Boolean.TRUE.equals(c.isVerified())) {
             throw new ValidationException("Company must be verified to post jobs");
         }
 

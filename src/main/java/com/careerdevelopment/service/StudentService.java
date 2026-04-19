@@ -190,7 +190,7 @@ public class StudentService {
         List<JobRequirement> open = jobRequirementRepository.findByStatus(JobStatus.OPEN);
         // Only verified companies should be visible to students.
         return open.stream()
-                .filter(j -> j.getCompany() != null && j.getCompany().isVerified())
+                .filter(j -> j.getCompany() != null && Boolean.TRUE.equals(j.getCompany().isVerified()))
                 .map(j -> toJobResponse(j))
                 .toList();
     }

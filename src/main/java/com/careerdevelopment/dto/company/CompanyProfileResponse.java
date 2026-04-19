@@ -12,7 +12,7 @@ public class CompanyProfileResponse {
     private String contactPerson;
     private String contactEmail;
     private String contactPhone;
-    private boolean isVerified;
+    private Boolean isVerified;
     private Instant enrolledAt;
 
     public Long getCompanyId() {
@@ -87,11 +87,11 @@ public class CompanyProfileResponse {
         this.contactPhone = contactPhone;
     }
 
-    public boolean isVerified() {
+    public Boolean isVerified() {
         return isVerified;
     }
 
-    public void setVerified(boolean verified) {
+    public void setVerified(Boolean verified) {
         isVerified = verified;
     }
 
