@@ -66,6 +66,8 @@ export default function CompanyDashboard() {
     setUser({ name: 'Company User' });
 
     const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
       try {
         const jobsRes = await fetch('http://localhost:8080/api/company/jobs', {
           headers: { Authorization: `Bearer ${token}` }
@@ -618,13 +620,6 @@ export default function CompanyDashboard() {
             )}
           </div>
         );
-      case 'Profile':
-        return (
-          <div style={{ padding: '2rem' }}>
-            <h1>Company Profile</h1>
-            <p>Profile management will be here.</p>
-          </div>
-        );
       default:
         return <div>Content not found</div>;
     }
@@ -663,12 +658,6 @@ export default function CompanyDashboard() {
             {notifications.filter(n => !n.read).length > 0 && (
               <span className="notification-badge">{notifications.filter(n => !n.read).length}</span>
             )}
-          </button>
-          <button
-            className={`nav-item ${activeTab === 'Profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('Profile')}
-          >
-            Profile
           </button>
         </nav>
 

@@ -58,6 +58,8 @@ export default function StudentDashboard() {
     setUser({ name: 'Student Viewer' });
 
     const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
       try {
         const jobsRes = await fetch('http://localhost:8080/api/student/jobs', {
           headers: { Authorization: `Bearer ${token}` }

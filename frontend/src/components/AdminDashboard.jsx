@@ -35,7 +35,7 @@ export default function AdminDashboard() {
     return decodedToken.role === expectedBackendRole;
   };
 
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const [activeTab, setActiveTab] = useState('Companies');
   const [showCompaniesDropdown, setShowCompaniesDropdown] = useState(false);
   const [activeCompanyOption, setActiveCompanyOption] = useState('Pending Companies');
   const [companies, setCompanies] = useState([]);
@@ -54,13 +54,11 @@ export default function AdminDashboard() {
   const [error, setError] = useState(null);
 
   const menuItems = [
-    "Dashboard",
     "Companies",
     "Jobs",
     "Students",
     "Applications",
-    "Feedbacks",
-    "Settings"
+    "Feedbacks"
   ];
 
   const companyOptions = ["Pending Companies", "All Companies"];
@@ -571,15 +569,6 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
-        </div>
-      );
-    }
-
-    if (activeTab !== 'Companies') {
-      return (
-        <div className="empty-box">
-          <h2>{activeTab}</h2>
-          <p>Coming soon...</p>
         </div>
       );
     }
