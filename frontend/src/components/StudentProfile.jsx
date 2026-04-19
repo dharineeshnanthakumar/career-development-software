@@ -268,7 +268,9 @@ export default function StudentProfile() {
                   value={editForm.phone} 
                   onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
                   style={{width: '100%', padding: '0.6rem', marginTop: '0.25rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--accent-color)', borderRadius: '4px', color: 'var(--text-main)', fontSize: '1rem'}}
-                  placeholder="Enter phone number"
+                  placeholder="10-digit phone number (e.g., 9876543210)"
+                  pattern="^[6-9]\d{9}$"
+                  title="Phone number must be 10 digits starting with 6, 7, 8, or 9"
                 />
               ) : (
                 <div style={{fontSize: '1.05rem', marginTop: '0.25rem'}}>{profile?.phone || 'N/A'}</div>

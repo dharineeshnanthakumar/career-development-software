@@ -8,6 +8,36 @@ import StudentProfile from './StudentProfile';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+
+  const decodeJWT = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const validateUserRole = (expectedRole) => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    
+    if (!token || storedRole !== expectedRole) {
+      return false;
+    }
+
+    const decodedToken = decodeJWT(token);
+    if (!decodedToken || !decodedToken.role) {
+      return false;
+    }
+
+    // Map frontend role to backend role
+    const expectedBackendRole = expectedRole === 'Admin' ? 'ROLE_ADMIN' : 
+                               expectedRole === 'Company' ? 'ROLE_COMPANY' : 'ROLE_STUDENT';
+    
+    return decodedToken.role === expectedBackendRole;
+  };
   const [user, setUser] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -20,10 +50,7 @@ export default function StudentDashboard() {
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-
-    if (!token || role?.toLowerCase() !== 'student') {
+    if (!validateUserRole('Student')) {
       navigate('/');
       return;
     }

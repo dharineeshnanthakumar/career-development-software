@@ -23,6 +23,14 @@ public class JobCreateRequest {
     @NotBlank
     private String deadline; // ISO-8601 date string, e.g. 2026-12-31
 
+    public LocalDate getDeadlineAsLocalDate() throws Exception {
+        LocalDate deadlineDate = LocalDate.parse(this.deadline);
+        if (deadlineDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Deadline must be today or in the future");
+        }
+        return deadlineDate;
+    }
+
     public String getTitle() {
         return title;
     }

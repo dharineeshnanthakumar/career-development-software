@@ -2,6 +2,8 @@ package com.careerdevelopment.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.URL;
 
 public class CompanyRegisterRequest {
     @Email
@@ -17,6 +19,7 @@ public class CompanyRegisterRequest {
     @NotBlank
     private String industry;
 
+    @URL(message = "Website must be a valid URL")
     private String website;
 
     @NotBlank
@@ -27,6 +30,7 @@ public class CompanyRegisterRequest {
     private String contactEmail;
 
     @NotBlank
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Phone number must be 10 digits starting with 6, 7, 8, or 9")
     private String contactPhone;
 
     public String getEmail() {

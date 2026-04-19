@@ -4,6 +4,36 @@ import './CompanyDashboard.css';
 
 export default function CompanyDashboard() {
   const navigate = useNavigate();
+
+  const decodeJWT = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const validateUserRole = (expectedRole) => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    
+    if (!token || storedRole !== expectedRole) {
+      return false;
+    }
+
+    const decodedToken = decodeJWT(token);
+    if (!decodedToken || !decodedToken.role) {
+      return false;
+    }
+
+    // Map frontend role to backend role
+    const expectedBackendRole = expectedRole === 'Admin' ? 'ROLE_ADMIN' : 
+                               expectedRole === 'Company' ? 'ROLE_COMPANY' : 'ROLE_STUDENT';
+    
+    return decodedToken.role === expectedBackendRole;
+  };
   const [user, setUser] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -28,10 +58,7 @@ export default function CompanyDashboard() {
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-
-    if (!token || role?.toLowerCase() !== 'company') {
+    if (!validateUserRole('Company')) {
       navigate('/');
       return;
     }
@@ -85,6 +112,24 @@ export default function CompanyDashboard() {
   const handlePostJob = async (e) => {
     e.preventDefault();
     setPostingJob(true);
+    
+    // Validate deadline
+    if (!jobForm.deadline) {
+      alert('Please select a deadline date');
+      setPostingJob(false);
+      return;
+    }
+    
+    const deadline = new Date(jobForm.deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (deadline < today) {
+      alert('Deadline must be today or in the future');
+      setPostingJob(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:8080/api/company/jobs', {

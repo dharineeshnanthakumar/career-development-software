@@ -111,7 +111,9 @@ public class CompanyService {
         job.setLocation(request.getLocation());
         job.setCtc(request.getCtc());
         try {
-            job.setDeadline(request.toDeadline());
+            job.setDeadline(request.getDeadlineAsLocalDate());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(e.getMessage());
         } catch (Exception e) {
             throw new ValidationException("Invalid deadline; expected ISO date (yyyy-MM-dd)");
         }

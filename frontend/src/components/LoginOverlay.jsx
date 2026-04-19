@@ -51,10 +51,47 @@ export default function LoginOverlay({ role, onClose }) {
     setSuccess(null);
   };
 
+  const decodeJWT = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return decoded;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateCGPA = (cgpa) => {
+    const value = parseFloat(cgpa);
+    return !isNaN(value) && value >= 0 && value <= 10;
+  };
+
+  const validateGraduationYear = (year) => {
+    const currentYear = new Date().getFullYear();
+    const yearNum = parseInt(year);
+    return !isNaN(yearNum) && yearNum >= currentYear && yearNum <= currentYear + 10;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!validateEmail(formData.username)) {
+      setError('Please enter a valid email address');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:8080/api/auth/login', {
@@ -68,8 +105,32 @@ export default function LoginOverlay({ role, onClose }) {
 
       const data = await response.json();
       if (response.ok && data.success) {
+        const token = data.data.token;
+        const decodedToken = decodeJWT(token);
+        
+        if (!decodedToken || !decodedToken.role) {
+          setError('Invalid token received');
+          return;
+        }
+
+        // Map backend role to frontend role
+        const backendRole = decodedToken.role;
+        let expectedBackendRole;
+        if (role === 'Admin') {
+          expectedBackendRole = 'ROLE_ADMIN';
+        } else if (role === 'Company') {
+          expectedBackendRole = 'ROLE_COMPANY';
+        } else {
+          expectedBackendRole = 'ROLE_STUDENT';
+        }
+
+        if (backendRole !== expectedBackendRole) {
+          setError(`You are not authorized to access the ${role} portal. Please use the correct login portal for your account type.`);
+          return;
+        }
+
         setSuccess('Login successful!');
-        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('token', token);
         localStorage.setItem('role', role);
         setTimeout(() => {
           if (role === 'Admin') {
@@ -94,6 +155,54 @@ export default function LoginOverlay({ role, onClose }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Validate email
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      setLoading(false);
+      return;
+    }
+
+    if (role === 'Student') {
+      // Validate phone
+      if (!validatePhone(formData.phone)) {
+        setError('Phone number must be 10 digits starting with 6, 7, 8, or 9');
+        setLoading(false);
+        return;
+      }
+      // Validate graduation year
+      if (!validateGraduationYear(formData.graduationYear)) {
+        const currentYear = new Date().getFullYear();
+        setError(`Graduation year must be between ${currentYear} and ${currentYear + 10}`);
+        setLoading(false);
+        return;
+      }
+      // Validate CGPA if provided
+      if (formData.cgpa && !validateCGPA(formData.cgpa)) {
+        setError('CGPA must be a number between 0 and 10');
+        setLoading(false);
+        return;
+      }
+    } else if (role === 'Company') {
+      // Validate contact emails
+      if (!validateEmail(formData.contactEmail)) {
+        setError('Please enter a valid contact email address');
+        setLoading(false);
+        return;
+      }
+      // Validate contact phone
+      if (!validatePhone(formData.contactPhone)) {
+        setError('Phone number must be 10 digits starting with 6, 7, 8, or 9');
+        setLoading(false);
+        return;
+      }
+      // Validate website if provided
+      if (formData.website && !formData.website.match(/^https?:\/\/.+/)) {
+        setError('Website must start with http:// or https://');
+        setLoading(false);
+        return;
+      }
+    }
 
     let payload;
     let endpoint;
@@ -232,7 +341,7 @@ export default function LoginOverlay({ role, onClose }) {
                   </div>
                   <div className="input-group" style={{flex: 1}}>
                     <label>Phone Number</label>
-                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} required />
+                    <input type="text" name="phone" value={formData.phone} onChange={handleChange} required pattern="^[6-9]\d{9}$" title="Phone number must be 10 digits starting with 6, 7, 8, or 9" placeholder="10-digit phone number" />
                   </div>
                 </div>
               </>
@@ -256,7 +365,7 @@ export default function LoginOverlay({ role, onClose }) {
                 </div>
                 <div className="input-group">
                   <label>Contact Phone</label>
-                  <input type="text" name="contactPhone" value={formData.contactPhone} onChange={handleChange} required />
+                  <input type="text" name="contactPhone" value={formData.contactPhone} onChange={handleChange} required pattern="^[6-9]\d{9}$" title="Phone number must be 10 digits starting with 6, 7, 8, or 9" placeholder="10-digit phone number" />
                 </div>
               </>
             ) : null}
