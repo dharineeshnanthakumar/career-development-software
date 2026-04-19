@@ -209,6 +209,7 @@ export default function StudentDashboard() {
                 applications={applications}
                 jobs={jobs}
                 loadingData={loadingData}
+                onViewAll={() => setActiveTab('Jobs')}
               />
             )}
 

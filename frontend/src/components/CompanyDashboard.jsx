@@ -661,22 +661,11 @@ export default function CompanyDashboard() {
           </button>
         </nav>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            marginTop: 'auto',
-            padding: '0.75rem 1rem',
-            backgroundColor: 'var(--error-color)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: '600'
-          }}
-        >
-          Logout
-        </button>
+        <div className="sidebar-footer">
+          <button className="logout-btn" onClick={handleLogout}>
+            Sign Out
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}

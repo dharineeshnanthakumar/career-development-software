@@ -142,7 +142,7 @@
 .form-footer button {
   background: none;
   border: none;
-  color: var(--primary-bg);
+  color: #0A4287; /* SNU Deep Blue */
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
