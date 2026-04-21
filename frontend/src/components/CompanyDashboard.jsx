@@ -630,7 +630,7 @@ export default function CompanyDashboard() {
       {/* Sidebar */}
       <div className="sidebar">
         <div className="sidebar-header">
-          <h2>CareerDev</h2>
+          <h2>SNU Career Portal</h2>
           <span className="badge">Company</span>
         </div>
 
