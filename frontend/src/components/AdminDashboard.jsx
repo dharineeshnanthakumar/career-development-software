@@ -60,8 +60,7 @@ export default function AdminDashboard() {
   const [applicationSearch, setApplicationSearch] = useState('');
   const [applicationFilters, setApplicationFilters] = useState({
     status: '',
-    company: '',
-    studentName: ''
+    company: ''
   });
   const [companyFeedbackSearch, setCompanyFeedbackSearch] = useState('');
   const [studentFeedbackSearch, setStudentFeedbackSearch] = useState('');
@@ -344,7 +343,7 @@ export default function AdminDashboard() {
 
   const resetApplicationFilters = () => {
     setApplicationSearch('');
-    setApplicationFilters({ status: '', company: '', studentName: '' });
+    setApplicationFilters({ status: '', company: '' });
   };
 
   const getFilteredApplications = () => {
@@ -354,9 +353,8 @@ export default function AdminDashboard() {
                            app.companyName.toLowerCase().includes(applicationSearch.toLowerCase());
       const matchesStatus = applicationFilters.status === '' || app.status === applicationFilters.status;
       const matchesCompany = applicationFilters.company === '' || app.companyName === applicationFilters.company;
-      const matchesStudent = applicationFilters.studentName === '' || app.studentName === applicationFilters.studentName;
       
-      return matchesSearch && matchesStatus && matchesCompany && matchesStudent;
+      return matchesSearch && matchesStatus && matchesCompany;
     });
   };
 
@@ -574,7 +572,6 @@ export default function AdminDashboard() {
       const filteredApplications = getFilteredApplications();
       const uniqueAppCompanies = [...new Set(applications.map(app => app.companyName))];
       const uniqueAppStatuses = [...new Set(applications.map(app => app.status))];
-      const uniqueStudents = [...new Set(applications.map(app => app.studentName))];
 
       return (
         <div className="applications-content">
@@ -614,19 +611,6 @@ export default function AdminDashboard() {
                   <option value="">All Companies</option>
                   {uniqueAppCompanies.map(company => (
                     <option key={company} value={company}>{company}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-field">
-                <label>Student</label>
-                <select 
-                  value={applicationFilters.studentName} 
-                  onChange={(e) => handleApplicationFilterChange('studentName', e.target.value)}
-                >
-                  <option value="">All Students</option>
-                  {uniqueStudents.map(student => (
-                    <option key={student} value={student}>{student}</option>
                   ))}
                 </select>
               </div>

@@ -18,7 +18,7 @@ export default function CompanyDashboard() {
   const validateUserRole = (expectedRole) => {
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role');
-    
+
     if (!token || storedRole !== expectedRole) {
       return false;
     }
@@ -29,9 +29,9 @@ export default function CompanyDashboard() {
     }
 
     // Map frontend role to backend role
-    const expectedBackendRole = expectedRole === 'Admin' ? 'ROLE_ADMIN' : 
-                               expectedRole === 'Company' ? 'ROLE_COMPANY' : 'ROLE_STUDENT';
-    
+    const expectedBackendRole = expectedRole === 'Admin' ? 'ROLE_ADMIN' :
+      expectedRole === 'Company' ? 'ROLE_COMPANY' : 'ROLE_STUDENT';
+
     return decodedToken.role === expectedBackendRole;
   };
   const [user, setUser] = useState(null);
@@ -48,6 +48,7 @@ export default function CompanyDashboard() {
     ctc: '',
     deadline: ''
   });
+  const [viewJobModal, setViewJobModal] = useState({ show: false, job: null });
   const [postingJob, setPostingJob] = useState(false);
   const [viewingApplicationsForJob, setViewingApplicationsForJob] = useState(null);
   const [applications, setApplications] = useState([]);
@@ -114,18 +115,18 @@ export default function CompanyDashboard() {
   const handlePostJob = async (e) => {
     e.preventDefault();
     setPostingJob(true);
-    
+
     // Validate deadline
     if (!jobForm.deadline) {
       alert('Please select a deadline date');
       setPostingJob(false);
       return;
     }
-    
+
     const deadline = new Date(jobForm.deadline);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (deadline < today) {
       alert('Deadline must be today or in the future');
       setPostingJob(false);
@@ -219,6 +220,40 @@ export default function CompanyDashboard() {
     }
   };
 
+  const handleUpdateJobStatus = async (jobId, currentJob, newStatus) => {
+    const token = localStorage.getItem('token');
+    try {
+      const updatedJob = {
+        title: currentJob.title,
+        description: currentJob.description,
+        eligibilityCriteria: currentJob.eligibilityCriteria,
+        location: currentJob.location,
+        ctc: currentJob.ctc,
+        deadline: Array.isArray(currentJob.deadline)
+          ? `${currentJob.deadline[0]}-${String(currentJob.deadline[1]).padStart(2, '0')}-${String(currentJob.deadline[2]).padStart(2, '0')}`
+          : currentJob.deadline,
+        status: newStatus
+      };
+      const response = await fetch(`http://localhost:8080/api/company/jobs/${jobId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedJob)
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setJobs(jobs.map(job => job.jobId === jobId ? data.data : job));
+      } else {
+        alert(data.message || 'Failed to update job status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while updating job status');
+    }
+  };
+
   const handleSubmitFeedback = async (e) => {
     e.preventDefault();
     if (!feedbackForm.comments.trim()) {
@@ -261,185 +296,148 @@ export default function CompanyDashboard() {
     if (viewingApplicationsForJob !== null) {
       const job = jobs.find(j => j.jobId === viewingApplicationsForJob);
       return (
-        <div style={{ padding: '2rem' }}>
+        <div className="dashboard-content-wrapper">
           <button
             onClick={() => setViewingApplicationsForJob(null)}
-            style={{
-              marginBottom: '1rem',
-              padding: '0.5rem 1rem',
-              background: 'var(--secondary-bg)',
-              color: 'var(--text-main)',
-              border: '1px solid var(--card-border)',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
+            className="back-btn"
           >
-             Back to Jobs
+            ← Back to Jobs
           </button>
-          
-          <h1>Applications for {job?.title}</h1>
-          
+
+          <div className="dashboard-header">
+            <div className="header-greeting">
+              <h1>Applications for {job?.title}</h1>
+              <p>Review and update student applications.</p>
+            </div>
+          </div>
+
           {loadingApplications ? (
             <p>Loading applications...</p>
           ) : (
-            <div>
+            <div className="jobs-list">
               {applications.length === 0 ? (
                 <p>No applications yet for this job.</p>
               ) : (
                 applications.map(app => (
-                  <div key={app.applicationId} style={{ background: 'var(--secondary-bg)', padding: '1.5rem', marginBottom: '1rem', borderRadius: '8px', border: '1px solid var(--card-border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                  <div key={app.applicationId} className="job-card">
+                    <div className="job-header">
                       <div>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>{app.studentName}</h3>
-                        <p style={{ margin: '0', color: 'var(--text-muted)' }}>Roll: {app.studentRollNumber}</p>
+                        <h3 className="job-title">{app.studentName}</h3>
+                        <p className="job-meta">Roll: {app.studentRollNumber}</p>
                       </div>
-                      <span style={{
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem',
-                        fontWeight: '600',
-                        background: app.status === 'APPLIED' ? 'var(--accent-color)' : 'var(--error-color)',
-                        color: '#fff'
-                      }}>
+                      <span className={`job-status-badge ${app.status === 'APPLIED' ? 'status-open' : 'status-closed'}`}>
                         {app.status}
                       </span>
                     </div>
-                    <p style={{ margin: '0 0 1rem 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    <p className="job-meta" style={{ marginBottom: '1rem' }}>
                       Applied: {new Date(app.appliedAt).toLocaleDateString()}
                     </p>
-                    <button
-                      style={{
-                        padding: '0.5rem 1rem',
-                        background: 'var(--accent-color)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        marginRight: '0.5rem'
-                      }}
-                      onClick={() => {
-                        const token = localStorage.getItem('token');
-                        fetch(`http://localhost:8080/api/company/cvs/${app.applicationId}/download`, {
-                          headers: { Authorization: `Bearer ${token}` }
-                        })
-                        .then(res => {
-                          if (!res.ok) throw new Error('Failed to fetch CV');
-                          return res.blob();
-                        })
-                        .then(blob => {
-                          const url = window.URL.createObjectURL(blob);
-                          const fileName = app.cvFileName || 'cv.pdf';
-                          const isPdf = fileName.toLowerCase().endsWith('.pdf');
-                          
-                          if (isPdf) {
-                            const previewWindow = window.open(url, '_blank', 'noopener,noreferrer');
-                            if (!previewWindow) {
+
+                    <div className="job-actions" style={{ marginBottom: '1rem' }}>
+                      <button
+                        className="btn-primary"
+                        onClick={() => {
+                          const token = localStorage.getItem('token');
+                          fetch(`http://localhost:8080/api/company/cvs/${app.applicationId}/download`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                          })
+                            .then(res => {
+                              if (!res.ok) throw new Error('Failed to fetch CV');
+                              return res.blob();
+                            })
+                            .then(blob => {
+                              const url = window.URL.createObjectURL(blob);
+                              const fileName = app.cvFileName || 'cv.pdf';
+                              const isPdf = fileName.toLowerCase().endsWith('.pdf');
+
+                              if (isPdf) {
+                                const previewWindow = window.open(url, '_blank', 'noopener,noreferrer');
+                                if (!previewWindow) {
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = fileName;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  a.remove();
+                                }
+                              } else {
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                              }
+                            })
+                            .catch(err => {
+                              console.error(err);
+                              alert('Failed to load CV');
+                            });
+                        }}
+                      >
+                        Preview CV
+                      </button>
+                      <button
+                        className="btn-secondary"
+                        onClick={() => {
+                          const token = localStorage.getItem('token');
+                          fetch(`http://localhost:8080/api/company/cvs/${app.applicationId}/download`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                          })
+                            .then(res => res.blob())
+                            .then(blob => {
+                              const url = window.URL.createObjectURL(blob);
                               const a = document.createElement('a');
                               a.href = url;
-                              a.download = fileName;
-                              document.body.appendChild(a);
+                              a.download = app.cvFileName || 'cv.pdf';
                               a.click();
-                              a.remove();
-                            }
-                          } else {
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = fileName;
-                            document.body.appendChild(a);
-                            a.click();
-                            a.remove();
-                          }
-                        })
-                        .catch(err => {
-                          console.error(err);
-                          alert('Failed to load CV');
-                        });
-                      }}
-                    >
-                       Preview CV
-                    </button>
-                    <button
-                      style={{
-                        padding: '0.5rem 1rem',
-                        background: 'var(--secondary-bg)',
-                        color: 'var(--text-main)',
-                        border: '1px solid var(--card-border)',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.9rem'
-                      }}
-                      onClick={() => {
-                        const token = localStorage.getItem('token');
-                        fetch(`http://localhost:8080/api/company/cvs/${app.applicationId}/download`, {
-                          headers: { Authorization: `Bearer ${token}` }
-                        })
-                        .then(res => res.blob())
-                        .then(blob => {
-                          const url = window.URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = app.cvFileName || 'cv.pdf';
-                          a.click();
-                          window.URL.revokeObjectURL(url);
-                        })
-                        .catch(err => {
-                          console.error(err);
-                          alert('Failed to download CV');
-                        });
-                      }}
-                    >
-                      Download CV
-                    </button>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
-                      <select
-                        value={statusUpdates[app.applicationId] ?? app.status}
-                        onChange={(e) => setStatusUpdates(prev => ({ ...prev, [app.applicationId]: e.target.value }))}
-                        style={{
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: '4px',
-                          border: '1px solid var(--card-border)',
-                          background: 'var(--secondary-bg)',
-                          color: 'var(--text-main)',
-                          fontSize: '0.9rem'
+                              window.URL.revokeObjectURL(url);
+                            })
+                            .catch(err => {
+                              console.error(err);
+                              alert('Failed to download CV');
+                            });
                         }}
                       >
-                        <option value="APPLIED">APPLIED</option>
-                        <option value="SHORTLISTED">SHORTLISTED</option>
-                        <option value="INTERVIEW_SCHEDULED">INTERVIEW SCHEDULED</option>
-                        <option value="OFFERED">SELECTED</option>
-                        <option value="REJECTED">REJECTED</option>
-                      </select>
-                      <button
-                        style={{
-                          padding: '0.5rem 1rem',
-                          background: 'var(--accent-color)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '0.9rem'
-                        }}
-                        onClick={() => handleUpdateApplicationStatus(app.applicationId, statusUpdates[app.applicationId] ?? app.status)}
-                      >
-                        Update Status
+                        Download CV
                       </button>
                     </div>
-                    <button
-                      style={{
-                        padding: '0.5rem 1rem',
-                        background: '#10b981',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        marginLeft: '0.5rem'
-                      }}
-                      onClick={() => setFeedbackModal({ show: true, jobId: viewingApplicationsForJob })}
-                    >
-                      Give Feedback
-                    </button>
+
+                    <div className="job-footer" style={{ marginTop: '0', paddingTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <select
+                          value={statusUpdates[app.applicationId] ?? app.status}
+                          onChange={(e) => setStatusUpdates(prev => ({ ...prev, [app.applicationId]: e.target.value }))}
+                          style={{
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '8px',
+                            border: '1px solid var(--card-border)',
+                            background: 'var(--secondary-bg)',
+                            color: 'var(--text-main)',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          <option value="APPLIED">APPLIED</option>
+                          <option value="SHORTLISTED">SHORTLISTED</option>
+                          <option value="INTERVIEW_SCHEDULED">INTERVIEW SCHEDULED</option>
+                          <option value="OFFERED">SELECTED</option>
+                          <option value="REJECTED">REJECTED</option>
+                        </select>
+                        <button
+                          className="btn-primary"
+                          onClick={() => handleUpdateApplicationStatus(app.applicationId, statusUpdates[app.applicationId] ?? app.status)}
+                        >
+                          Update Status
+                        </button>
+                      </div>
+                      <button
+                        className="btn-primary"
+                        style={{ background: '#10b981' }}
+                        onClick={() => setFeedbackModal({ show: true, jobId: viewingApplicationsForJob })}
+                      >
+                        Give Feedback
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -452,166 +450,175 @@ export default function CompanyDashboard() {
     switch (activeTab) {
       case 'Overview':
         return (
-          <div style={{ padding: '2rem' }}>
-            <h1>Company Overview</h1>
-            <p>Welcome to your company dashboard. Here you can manage your jobs and applications.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
-              <div style={{ background: 'var(--secondary-bg)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--card-border)' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>Total Jobs</h3>
-                <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>{jobs.length}</p>
+          <div className="dashboard-content-wrapper">
+            <div className="dashboard-header">
+              <div className="header-greeting">
+                <h1>Company Overview</h1>
+                <p>.</p>
               </div>
-              <div style={{ background: 'var(--secondary-bg)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--card-border)' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>Active Jobs</h3>
-                <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>{jobs.filter(job => job.isActive).length}</p>
+            </div>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-info">
+                  <h3>Total Jobs</h3>
+                  <p>{jobs.length}</p>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-info">
+                  <h3>Active Jobs</h3>
+                  <p>{jobs.filter(job => job.status === 'OPEN').length}</p>
+                </div>
               </div>
             </div>
           </div>
         );
       case 'Post Job':
         return (
-          <div style={{ padding: '2rem' }}>
-            <h1>Post New Job</h1>
-            <form onSubmit={handlePostJob} style={{ maxWidth: '600px', margin: '0 auto' }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>Job Title</label>
-                <input
-                  type="text"
-                  value={jobForm.title}
-                  onChange={(e) => setJobForm({...jobForm, title: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--secondary-bg)', color: 'var(--text-main)' }}
-                  placeholder="Enter job title"
-                />
+          <div className="dashboard-content-wrapper">
+            <div className="dashboard-header">
+              <div className="header-greeting">
+                <h1>Post New Job</h1>
+                <p>Create a new job posting for students to apply.</p>
               </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>Description</label>
-                <textarea
-                  value={jobForm.description}
-                  onChange={(e) => setJobForm({...jobForm, description: e.target.value})}
-                  required
-                  rows="4"
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--secondary-bg)', color: 'var(--text-main)', resize: 'vertical' }}
-                  placeholder="Enter job description"
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>Eligibility Criteria</label>
-                <textarea
-                  value={jobForm.eligibilityCriteria}
-                  onChange={(e) => setJobForm({...jobForm, eligibilityCriteria: e.target.value})}
-                  required
-                  rows="3"
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--secondary-bg)', color: 'var(--text-main)', resize: 'vertical' }}
-                  placeholder="Enter eligibility criteria"
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>Location</label>
-                <input
-                  type="text"
-                  value={jobForm.location}
-                  onChange={(e) => setJobForm({...jobForm, location: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--secondary-bg)', color: 'var(--text-main)' }}
-                  placeholder="Enter job location"
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>CTC</label>
-                <input
-                  type="text"
-                  value={jobForm.ctc}
-                  onChange={(e) => setJobForm({...jobForm, ctc: e.target.value})}
-                  required
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--secondary-bg)', color: 'var(--text-main)' }}
-                  placeholder="Enter CTC (e.g., 5-8 LPA)"
-                />
-              </div>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontWeight: '600' }}>Application Deadline</label>
-                <input
-                  type="date"
-                  value={jobForm.deadline}
-                  onChange={(e) => setJobForm({...jobForm, deadline: e.target.value})}
-                  required
-                  min={new Date().toISOString().split('T')[0]}
-                  style={{ width: '100%', padding: '0.75rem', border: '1px solid var(--card-border)', borderRadius: '4px', background: 'var(--secondary-bg)', color: 'var(--text-main)' }}
-                />
-              </div>
-              
-              <button
-                type="submit"
-                disabled={postingJob}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  background: 'var(--accent-color)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: postingJob ? 'not-allowed' : 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '600'
-                }}
-              >
-                {postingJob ? 'Posting Job...' : 'Post Job'}
-              </button>
-            </form>
+            </div>
+            <div className="form-container" style={{ margin: '0 auto' }}>
+              <form onSubmit={handlePostJob}>
+                <div className="form-group">
+                  <label>Job Title</label>
+                  <input
+                    type="text"
+                    value={jobForm.title}
+                    onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
+                    required
+                    placeholder="Enter job title"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    value={jobForm.description}
+                    onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
+                    required
+                    rows="4"
+                    placeholder="Enter job description"
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Eligibility Criteria</label>
+                  <textarea
+                    value={jobForm.eligibilityCriteria}
+                    onChange={(e) => setJobForm({ ...jobForm, eligibilityCriteria: e.target.value })}
+                    required
+                    rows="3"
+                    placeholder="Enter eligibility criteria"
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Location</label>
+                  <input
+                    type="text"
+                    value={jobForm.location}
+                    onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })}
+                    required
+                    placeholder="Enter job location"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>CTC</label>
+                  <input
+                    type="text"
+                    value={jobForm.ctc}
+                    onChange={(e) => setJobForm({ ...jobForm, ctc: e.target.value })}
+                    required
+                    placeholder="Enter CTC (e.g., 5-8 LPA)"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Application Deadline</label>
+                  <input
+                    type="date"
+                    value={jobForm.deadline}
+                    onChange={(e) => setJobForm({ ...jobForm, deadline: e.target.value })}
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={postingJob}
+                  className="btn-primary"
+                  style={{ width: '100%', marginTop: '1rem' }}
+                >
+                  {postingJob ? 'Posting Job...' : 'Post Job'}
+                </button>
+              </form>
+            </div>
           </div>
         );
       case 'My Jobs':
         return (
-          <div style={{ padding: '2rem' }}>
-            <h1>My Jobs</h1>
+          <div className="dashboard-content-wrapper">
+            <div className="dashboard-header">
+              <div className="header-greeting">
+                <h1>My Jobs</h1>
+                <p>Manage your posted jobs and view applications.</p>
+              </div>
+            </div>
             {loadingData ? (
               <p>Loading jobs...</p>
             ) : (
-              <div>
+              <div className="jobs-list">
                 {jobs.length === 0 ? (
                   <p>No jobs posted yet.</p>
                 ) : (
                   jobs.map(job => (
-                    <div key={job.jobId} style={{ background: 'var(--secondary-bg)', padding: '1.5rem', marginBottom: '1rem', borderRadius: '8px', border: '1px solid var(--card-border)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <div key={job.jobId} className="job-card">
+                      <div className="job-header">
                         <div>
-                          <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>{job.title}</h3>
-                          <p style={{ margin: '0', color: 'var(--text-muted)' }}>{job.location} • {job.ctc}</p>
+                          <h3 className="job-title">{job.title}</h3>
+                          <p className="job-meta">{job.location} • {job.ctc}</p>
                         </div>
-                        <span style={{
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '4px',
-                          fontSize: '0.8rem',
-                          fontWeight: '600',
-                          background: job.isActive ? 'var(--success-color)' : 'var(--error-color)',
-                          color: '#fff'
-                        }}>
-                          {job.isActive ? 'Active' : 'Inactive'}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span className={`job-status-badge status-${job.status.toLowerCase()}`}>
+                            {job.status}
+                          </span>
+                          <button
+                            onClick={() => handleUpdateJobStatus(job.jobId, job, job.status === 'OPEN' ? 'CLOSED' : 'OPEN')}
+                            className="btn-secondary"
+                            style={{ padding: '0.35rem 0.75rem', fontSize: '0.85rem' }}
+                          >
+                            Mark {job.status === 'OPEN' ? 'CLOSED' : 'OPEN'}
+                          </button>
+                        </div>
                       </div>
-                      <p style={{ margin: '0 0 1rem 0', color: 'var(--text-main)' }}>{job.description}</p>
-                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      <p className="job-description">{job.description}</p>
+                      <div className="job-footer">
+                        <span className="job-deadline">
                           Deadline: {new Date(job.deadline).toLocaleDateString()}
                         </span>
-                        <button
-                          style={{
-                            padding: '0.5rem 1rem',
-                            background: 'var(--accent-color)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem'
-                          }}
-                          onClick={() => handleViewApplications(job.jobId)}
-                        >
-                          View Applications
-                        </button>
+                        <div className="job-actions">
+                          <button
+                            className="btn-secondary"
+                            onClick={() => setViewJobModal({ show: true, job })}
+                          >
+                            View Details
+                          </button>
+                          <button
+                            className="btn-primary"
+                            onClick={() => handleViewApplications(job.jobId)}
+                          >
+                            View Applications
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -669,9 +676,12 @@ export default function CompanyDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="main-content">
+      <main className="dashboard-main">
+        <div className="top-navbar">
+          <h1>Company Dashboard</h1>
+        </div>
         {renderContent()}
-      </div>
+      </main>
 
       {/* Notification Modal */}
       {showNotifications && (
@@ -798,6 +808,74 @@ export default function CompanyDashboard() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Job Modal */}
+      {viewJobModal.show && viewJobModal.job && (
+        <div className="notification-modal-overlay" onClick={() => setViewJobModal({ show: false, job: null })}>
+          <div className="notification-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+            <div className="notification-modal-header">
+              <h3>{viewJobModal.job.title}</h3>
+              <button className="close-btn" onClick={() => setViewJobModal({ show: false, job: null })}>×</button>
+            </div>
+            <div style={{ padding: '1.5rem', maxHeight: '70vh', overflowY: 'auto', color: 'var(--text-main)' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>Description</h4>
+                <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{viewJobModal.job.description}</p>
+              </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>Eligibility Criteria</h4>
+                <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>{viewJobModal.job.eligibilityCriteria}</p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>Location</h4>
+                  <p style={{ margin: 0 }}>{viewJobModal.job.location}</p>
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>CTC</h4>
+                  <p style={{ margin: 0 }}>{viewJobModal.job.ctc}</p>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>Deadline</h4>
+                  <p style={{ margin: 0 }}>{new Date(viewJobModal.job.deadline).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}></h4>
+                  <span style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '4px',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    background: viewJobModal.job.status === 'OPEN' ? 'var(--success-color)' : 'var(--error-color)',
+                    color: '#fff',
+                    display: 'inline-block'
+                  }}>
+                    {viewJobModal.job.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--card-border)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setViewJobModal({ show: false, job: null })}
+                style={{
+                  padding: '0.5rem 1.5rem',
+                  background: 'var(--secondary-bg)',
+                  color: 'var(--text-main)',
+                  border: '1px solid var(--card-border)',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
