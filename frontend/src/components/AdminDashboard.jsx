@@ -37,7 +37,9 @@ export default function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState('Companies');
   const [showCompaniesDropdown, setShowCompaniesDropdown] = useState(false);
+  const [showFeedbacksDropdown, setShowFeedbacksDropdown] = useState(false);
   const [activeCompanyOption, setActiveCompanyOption] = useState('Pending Companies');
+  const [activeFeedbackOption, setActiveFeedbackOption] = useState('Company Feedbacks');
   const [companies, setCompanies] = useState([]);
   const [students, setStudents] = useState([]);
   const [jobs, setJobs] = useState([]);
@@ -61,6 +63,8 @@ export default function AdminDashboard() {
     company: '',
     studentName: ''
   });
+  const [companyFeedbackSearch, setCompanyFeedbackSearch] = useState('');
+  const [studentFeedbackSearch, setStudentFeedbackSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -73,6 +77,8 @@ export default function AdminDashboard() {
   ];
 
   const companyOptions = ["Pending Companies", "All Companies"];
+
+  const feedbackOptions = ["Company Feedbacks", "Student Feedbacks"];
 
   useEffect(() => {
     if (!validateUserRole('Admin')) {
@@ -255,8 +261,13 @@ export default function AdminDashboard() {
 
     if (item === "Companies") {
       setShowCompaniesDropdown(prev => !prev);
+      setShowFeedbacksDropdown(false);
+    } else if (item === "Feedbacks") {
+      setShowFeedbacksDropdown(prev => !prev);
+      setShowCompaniesDropdown(false);
     } else {
       setShowCompaniesDropdown(false);
+      setShowFeedbacksDropdown(false);
     }
   };
 
@@ -264,6 +275,13 @@ export default function AdminDashboard() {
     setActiveCompanyOption(option);
     setActiveTab('Companies');
     setShowCompaniesDropdown(true);
+    setError(null);
+  };
+
+  const handleFeedbackOptionClick = (option) => {
+    setActiveFeedbackOption(option);
+    setActiveTab('Feedbacks');
+    setShowFeedbacksDropdown(true);
     setError(null);
   };
 
@@ -339,6 +357,24 @@ export default function AdminDashboard() {
       const matchesStudent = applicationFilters.studentName === '' || app.studentName === applicationFilters.studentName;
       
       return matchesSearch && matchesStatus && matchesCompany && matchesStudent;
+    });
+  };
+
+  const getFilteredCompanyFeedback = () => {
+    return companyFeedback.filter(feedback => {
+      const matchesSearch = (feedback.companyName?.toLowerCase().includes(companyFeedbackSearch.toLowerCase()) || '') ||
+                           (feedback.jobTitle?.toLowerCase().includes(companyFeedbackSearch.toLowerCase()) || '') ||
+                           (feedback.comments?.toLowerCase().includes(companyFeedbackSearch.toLowerCase()) || '');
+      return matchesSearch;
+    });
+  };
+
+  const getFilteredStudentFeedback = () => {
+    return studentFeedback.filter(feedback => {
+      const matchesSearch = (feedback.studentName?.toLowerCase().includes(studentFeedbackSearch.toLowerCase()) || '') ||
+                           (feedback.companyName?.toLowerCase().includes(studentFeedbackSearch.toLowerCase()) || '') ||
+                           (feedback.comments?.toLowerCase().includes(studentFeedbackSearch.toLowerCase()) || '');
+      return matchesSearch;
     });
   };
 
@@ -644,95 +680,127 @@ export default function AdminDashboard() {
     }
 
     if (activeTab === 'Feedbacks') {
-      return (
-        <div className="feedbacks-content">
-          <h2>Feedback Management</h2>
+      if (activeFeedbackOption === 'Company Feedbacks') {
+        const filteredCompanyFeedback = getFilteredCompanyFeedback();
 
-          {/* Company Feedback Section */}
-          <div className="feedback-section">
-            <h3>Company Feedback</h3>
-            {loading && <div className="empty-box">Loading company feedback...</div>}
-            {error && <div className="error-box">{error}</div>}
+        return (
+          <div className="feedbacks-content">
+            <h2>Feedback Management - Company Feedbacks</h2>
 
-            {!loading && !error && companyFeedback.length === 0 && (
-              <div className="empty-box">No company feedback found</div>
-            )}
-
-            {!loading && !error && companyFeedback.length > 0 && (
-              <div className="feedback-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Company</th>
-                      <th>Job Title</th>
-                      <th>Rating</th>
-                      <th>Comments</th>
-                      <th>Submitted Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {companyFeedback.map(feedback => (
-                      <tr key={feedback.id}>
-                        <td>{feedback.companyName || 'N/A'}</td>
-                        <td>{feedback.jobTitle || 'N/A'}</td>
-                        <td>
-                          <span className={`rating rating-${feedback.rating}`}>
-                            {feedback.rating}/5 ⭐
-                          </span>
-                        </td>
-                        <td className="comments-cell">{feedback.comments}</td>
-                        <td>{new Date(feedback.submittedAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div className="search-filter-section">
+              <div className="search-box">
+                <input 
+                  type="text" 
+                  placeholder="Search by company, job title, or comments..."
+                  value={companyFeedbackSearch}
+                  onChange={(e) => setCompanyFeedbackSearch(e.target.value)}
+                />
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Student Feedback Section */}
-          <div className="feedback-section">
-            <h3>Student Feedback</h3>
-            {loading && <div className="empty-box">Loading student feedback...</div>}
-            {error && <div className="error-box">{error}</div>}
+            <div className="feedback-section">
+              {loading && <div className="empty-box">Loading company feedback...</div>}
+              {error && <div className="error-box">{error}</div>}
 
-            {!loading && !error && studentFeedback.length === 0 && (
-              <div className="empty-box">No student feedback found</div>
-            )}
+              {!loading && !error && filteredCompanyFeedback.length === 0 && (
+                <div className="empty-box">{companyFeedback.length === 0 ? 'No company feedback found' : 'No company feedback matches your search'}</div>
+              )}
 
-            {!loading && !error && studentFeedback.length > 0 && (
-              <div className="feedback-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Student</th>
-                      <th>Company</th>
-                      <th>Rating</th>
-                      <th>Comments</th>
-                      <th>Submitted Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {studentFeedback.map(feedback => (
-                      <tr key={feedback.id}>
-                        <td>{feedback.studentName || 'N/A'}</td>
-                        <td>{feedback.companyName || 'N/A'}</td>
-                        <td>
-                          <span className={`rating rating-${feedback.rating}`}>
-                            {feedback.rating}/5 ⭐
-                          </span>
-                        </td>
-                        <td className="comments-cell">{feedback.comments}</td>
-                        <td>{new Date(feedback.submittedAt).toLocaleDateString()}</td>
+              {!loading && !error && filteredCompanyFeedback.length > 0 && (
+                <div className="feedback-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Rating</th>
+                        <th>Comments</th>
+                        <th>Submitted Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {filteredCompanyFeedback.map(feedback => (
+                        <tr key={feedback.id}>
+                          <td>{feedback.companyName || 'N/A'}</td>
+                          <td>{feedback.jobTitle || 'N/A'}</td>
+                          <td>
+                            <span className={`rating rating-${feedback.rating}`}>
+                              {feedback.rating}/5 ⭐
+                            </span>
+                          </td>
+                          <td className="comments-cell">{feedback.comments}</td>
+                          <td>{new Date(feedback.submittedAt).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="result-count">Showing {filteredCompanyFeedback.length} of {companyFeedback.length} company feedbacks</div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      );
+        );
+      } else {
+        const filteredStudentFeedback = getFilteredStudentFeedback();
+
+        return (
+          <div className="feedbacks-content">
+            <h2>Feedback Management - Student Feedbacks</h2>
+
+            <div className="search-filter-section">
+              <div className="search-box">
+                <input 
+                  type="text" 
+                  placeholder="Search by student, company, or comments..."
+                  value={studentFeedbackSearch}
+                  onChange={(e) => setStudentFeedbackSearch(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="feedback-section">
+              {loading && <div className="empty-box">Loading student feedback...</div>}
+              {error && <div className="error-box">{error}</div>}
+
+              {!loading && !error && filteredStudentFeedback.length === 0 && (
+                <div className="empty-box">{studentFeedback.length === 0 ? 'No student feedback found' : 'No student feedback matches your search'}</div>
+              )}
+
+              {!loading && !error && filteredStudentFeedback.length > 0 && (
+                <div className="feedback-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        <th>Company</th>
+                        <th>Rating</th>
+                        <th>Comments</th>
+                        <th>Submitted Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStudentFeedback.map(feedback => (
+                        <tr key={feedback.id}>
+                          <td>{feedback.studentName || 'N/A'}</td>
+                          <td>{feedback.companyName || 'N/A'}</td>
+                          <td>
+                            <span className={`rating rating-${feedback.rating}`}>
+                              {feedback.rating}/5 ⭐
+                            </span>
+                          </td>
+                          <td className="comments-cell">{feedback.comments}</td>
+                          <td>{new Date(feedback.submittedAt).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="result-count">Showing {filteredStudentFeedback.length} of {studentFeedback.length} student feedbacks</div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
     }
 
     return (
@@ -808,8 +876,8 @@ export default function AdminDashboard() {
                   onClick={() => handleMenuClick(item)}
                 >
                   <span>{item}</span>
-                  {item === 'Companies' && (
-                    <span className={`arrow ${showCompaniesDropdown ? 'open' : ''}`}>▼</span>
+                  {(item === 'Companies' || item === 'Feedbacks') && (
+                    <span className={`arrow ${(item === 'Companies' && showCompaniesDropdown) || (item === 'Feedbacks' && showFeedbacksDropdown) ? 'open' : ''}`}>▼</span>
                   )}
                 </button>
 
@@ -820,6 +888,20 @@ export default function AdminDashboard() {
                         key={option}
                         className={`dropdown-item ${activeCompanyOption === option ? 'active' : ''}`}
                         onClick={() => handleCompanyOptionClick(option)}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {item === 'Feedbacks' && showFeedbacksDropdown && (
+                  <div className="dropdown">
+                    {feedbackOptions.map(option => (
+                      <button
+                        key={option}
+                        className={`dropdown-item ${activeFeedbackOption === option ? 'active' : ''}`}
+                        onClick={() => handleFeedbackOptionClick(option)}
                       >
                         {option}
                       </button>
