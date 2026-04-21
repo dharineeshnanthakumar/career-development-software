@@ -50,6 +50,17 @@ export default function AdminDashboard() {
     minCgpa: '',
     maxCgpa: ''
   });
+  const [jobSearch, setJobSearch] = useState('');
+  const [jobFilters, setJobFilters] = useState({
+    status: '',
+    company: ''
+  });
+  const [applicationSearch, setApplicationSearch] = useState('');
+  const [applicationFilters, setApplicationFilters] = useState({
+    status: '',
+    company: '',
+    studentName: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -288,6 +299,49 @@ export default function AdminDashboard() {
     setStudentFilters({ course: '', graduationYear: '', minCgpa: '', maxCgpa: '' });
   };
 
+  const handleJobFilterChange = (field, value) => {
+    setJobFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetJobFilters = () => {
+    setJobSearch('');
+    setJobFilters({ status: '', company: '' });
+  };
+
+  const getFilteredJobs = () => {
+    return jobs.filter(job => {
+      const matchesSearch = job.title.toLowerCase().includes(jobSearch.toLowerCase()) ||
+                           job.companyName.toLowerCase().includes(jobSearch.toLowerCase()) ||
+                           job.location.toLowerCase().includes(jobSearch.toLowerCase());
+      const matchesStatus = jobFilters.status === '' || job.status === jobFilters.status;
+      const matchesCompany = jobFilters.company === '' || job.companyName === jobFilters.company;
+      
+      return matchesSearch && matchesStatus && matchesCompany;
+    });
+  };
+
+  const handleApplicationFilterChange = (field, value) => {
+    setApplicationFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetApplicationFilters = () => {
+    setApplicationSearch('');
+    setApplicationFilters({ status: '', company: '', studentName: '' });
+  };
+
+  const getFilteredApplications = () => {
+    return applications.filter(app => {
+      const matchesSearch = app.studentName.toLowerCase().includes(applicationSearch.toLowerCase()) ||
+                           app.jobTitle.toLowerCase().includes(applicationSearch.toLowerCase()) ||
+                           app.companyName.toLowerCase().includes(applicationSearch.toLowerCase());
+      const matchesStatus = applicationFilters.status === '' || app.status === applicationFilters.status;
+      const matchesCompany = applicationFilters.company === '' || app.companyName === applicationFilters.company;
+      const matchesStudent = applicationFilters.studentName === '' || app.studentName === applicationFilters.studentName;
+      
+      return matchesSearch && matchesStatus && matchesCompany && matchesStudent;
+    });
+  };
+
   const renderMainContent = () => {
     if (activeTab === 'Students') {
       return (
@@ -388,18 +442,64 @@ export default function AdminDashboard() {
     }
 
     if (activeTab === 'Jobs') {
+      const filteredJobs = getFilteredJobs();
+      const uniqueCompanies = [...new Set(jobs.map(job => job.companyName))];
+      const uniqueStatuses = [...new Set(jobs.map(job => job.status))];
+
       return (
         <div className="jobs-content">
           <h2>All Jobs</h2>
 
+          {/* Search and Filter Section */}
+          <div className="search-filter-section">
+            <div className="search-box">
+              <input 
+                type="text" 
+                placeholder="Search by job title, company, or location..."
+                value={jobSearch}
+                onChange={(e) => setJobSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="filter-section">
+              <div className="filter-field">
+                <label>Status</label>
+                <select 
+                  value={jobFilters.status} 
+                  onChange={(e) => handleJobFilterChange('status', e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  {uniqueStatuses.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-field">
+                <label>Company</label>
+                <select 
+                  value={jobFilters.company} 
+                  onChange={(e) => handleJobFilterChange('company', e.target.value)}
+                >
+                  <option value="">All Companies</option>
+                  {uniqueCompanies.map(company => (
+                    <option key={company} value={company}>{company}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button className="reset-btn" onClick={resetJobFilters}>Reset Filters</button>
+            </div>
+          </div>
+
           {loading && <div className="empty-box">Loading jobs...</div>}
           {error && <div className="error-box">{error}</div>}
 
-          {!loading && !error && jobs.length === 0 && (
-            <div className="empty-box">No jobs found</div>
+          {!loading && !error && filteredJobs.length === 0 && (
+            <div className="empty-box">{jobs.length === 0 ? 'No jobs found' : 'No jobs match your filters'}</div>
           )}
 
-          {!loading && !error && jobs.length > 0 && (
+          {!loading && !error && filteredJobs.length > 0 && (
             <div className="job-list">
               <table>
                 <thead>
@@ -414,7 +514,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.map(job => (
+                  {filteredJobs.map(job => (
                     <tr key={job.jobId}>
                       <td>{job.title}</td>
                       <td>{job.companyName}</td>
@@ -427,6 +527,7 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+              <div className="result-count">Showing {filteredJobs.length} of {jobs.length} jobs</div>
             </div>
           )}
         </div>
@@ -434,18 +535,78 @@ export default function AdminDashboard() {
     }
 
     if (activeTab === 'Applications') {
+      const filteredApplications = getFilteredApplications();
+      const uniqueAppCompanies = [...new Set(applications.map(app => app.companyName))];
+      const uniqueAppStatuses = [...new Set(applications.map(app => app.status))];
+      const uniqueStudents = [...new Set(applications.map(app => app.studentName))];
+
       return (
         <div className="applications-content">
           <h2>All Applications</h2>
 
+          {/* Search and Filter Section */}
+          <div className="search-filter-section">
+            <div className="search-box">
+              <input 
+                type="text" 
+                placeholder="Search by student name, job title, or company..."
+                value={applicationSearch}
+                onChange={(e) => setApplicationSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="filter-section">
+              <div className="filter-field">
+                <label>Status</label>
+                <select 
+                  value={applicationFilters.status} 
+                  onChange={(e) => handleApplicationFilterChange('status', e.target.value)}
+                >
+                  <option value="">All Statuses</option>
+                  {uniqueAppStatuses.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-field">
+                <label>Company</label>
+                <select 
+                  value={applicationFilters.company} 
+                  onChange={(e) => handleApplicationFilterChange('company', e.target.value)}
+                >
+                  <option value="">All Companies</option>
+                  {uniqueAppCompanies.map(company => (
+                    <option key={company} value={company}>{company}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-field">
+                <label>Student</label>
+                <select 
+                  value={applicationFilters.studentName} 
+                  onChange={(e) => handleApplicationFilterChange('studentName', e.target.value)}
+                >
+                  <option value="">All Students</option>
+                  {uniqueStudents.map(student => (
+                    <option key={student} value={student}>{student}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button className="reset-btn" onClick={resetApplicationFilters}>Reset Filters</button>
+            </div>
+          </div>
+
           {loading && <div className="empty-box">Loading applications...</div>}
           {error && <div className="error-box">{error}</div>}
 
-          {!loading && !error && applications.length === 0 && (
-            <div className="empty-box">No applications found</div>
+          {!loading && !error && filteredApplications.length === 0 && (
+            <div className="empty-box">{applications.length === 0 ? 'No applications found' : 'No applications match your filters'}</div>
           )}
 
-          {!loading && !error && applications.length > 0 && (
+          {!loading && !error && filteredApplications.length > 0 && (
             <div className="application-list">
               <table>
                 <thead>
@@ -459,7 +620,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {applications.map(app => (
+                  {filteredApplications.map(app => (
                     <tr key={app.applicationId}>
                       <td>{app.studentName}</td>
                       <td>{app.jobTitle}</td>
@@ -475,6 +636,7 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+              <div className="result-count">Showing {filteredApplications.length} of {applications.length} applications</div>
             </div>
           )}
         </div>

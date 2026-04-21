@@ -19,6 +19,7 @@ import com.careerdevelopment.security.JwtTokenUtil;
 import com.careerdevelopment.security.SecurityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.careerdevelopment.dto.student.StudentProfileResponse;
 import com.careerdevelopment.dto.company.CompanyProfileResponse;
@@ -49,25 +50,33 @@ public class AuthService {
         this.securityUtils = securityUtils;
     }
 
+    @Transactional
     public StudentProfileResponse registerStudent(StudentRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String email = request.getEmail().toLowerCase().trim();
+        String rollNumber = request.getRollNumber().trim();
+        
+        if (userRepository.existsByEmail(email)) {
             throw new ValidationException("Email already in use");
         }
 
+        if (studentRepository.findByRollNumber(rollNumber).isPresent()) {
+            throw new ValidationException("Roll number already exists");
+        }
+
         User user = new User();
-        user.setEmail(request.getEmail().toLowerCase());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.ROLE_STUDENT);
         userRepository.save(user);
 
         Student student = new Student();
         student.setUser(user);
-        student.setName(request.getName());
-        student.setRollNumber(request.getRollNumber());
-        student.setDepartment(request.getDepartment());
+        student.setName(request.getName().trim());
+        student.setRollNumber(rollNumber);
+        student.setDepartment(request.getDepartment().trim());
         student.setGraduationYear(request.getGraduationYear());
         student.setCgpa(request.getCgpa());
-        student.setPhone(request.getPhone());
+        student.setPhone(request.getPhone().trim());
         student.setEnrolledInPlacement(false);
 
         studentRepository.save(student);
@@ -75,25 +84,29 @@ public class AuthService {
         return toStudentProfileResponse(student);
     }
 
+    @Transactional
     public CompanyProfileResponse registerCompany(CompanyRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String email = request.getEmail().toLowerCase().trim();
+        String contactEmail = request.getContactEmail().toLowerCase().trim();
+        
+        if (userRepository.existsByEmail(email)) {
             throw new ValidationException("Email already in use");
         }
 
         User user = new User();
-        user.setEmail(request.getEmail().toLowerCase());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.ROLE_COMPANY);
         userRepository.save(user);
 
         Company company = new Company();
         company.setUser(user);
-        company.setName(request.getName());
-        company.setIndustry(request.getIndustry());
-        company.setWebsite(request.getWebsite());
-        company.setContactPerson(request.getContactPerson());
-        company.setContactEmail(request.getContactEmail().toLowerCase());
-        company.setContactPhone(request.getContactPhone());
+        company.setName(request.getName().trim());
+        company.setIndustry(request.getIndustry().trim());
+        company.setWebsite(request.getWebsite() != null ? request.getWebsite().trim() : null);
+        company.setContactPerson(request.getContactPerson().trim());
+        company.setContactEmail(contactEmail);
+        company.setContactPhone(request.getContactPhone() != null ? request.getContactPhone().trim() : null);
         company.setVerified(null);
 
         companyRepository.save(company);

@@ -15,7 +15,7 @@ import com.careerdevelopment.security.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -95,6 +95,30 @@ class AuthServiceTest {
 
         assertThrows(ValidationException.class, () -> authService.registerStudent(req));
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void registerStudent_RollNumberAlreadyExists() {
+        StudentRegisterRequest req = new StudentRegisterRequest();
+        req.setEmail("test@student.com");
+        req.setPassword("password123");
+        req.setName("Test Student");
+        req.setGraduationYear(2025);
+        req.setCgpa(8.5);
+        req.setRollNumber("12345");
+        req.setDepartment("Computer Science");
+        req.setPhone("1234567890");
+
+        Student existingStudent = new Student();
+        existingStudent.setId(5L);
+        existingStudent.setRollNumber("12345");
+
+        when(userRepository.existsByEmail("test@student.com")).thenReturn(false);
+        when(studentRepository.findByRollNumber("12345")).thenReturn(Optional.of(existingStudent));
+
+        assertThrows(ValidationException.class, () -> authService.registerStudent(req));
+        verify(userRepository, never()).save(any(User.class));
+        verify(studentRepository, never()).save(any(Student.class));
     }
 
     @Test

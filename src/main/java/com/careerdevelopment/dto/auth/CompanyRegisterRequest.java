@@ -3,7 +3,7 @@ package com.careerdevelopment.dto.auth;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.URL;
+import org.hibernate.validator.constraints.URL;
 
 public class CompanyRegisterRequest {
     @Email

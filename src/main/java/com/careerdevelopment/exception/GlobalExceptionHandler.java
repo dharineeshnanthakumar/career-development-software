@@ -2,6 +2,7 @@ package com.careerdevelopment.exception;
 
 import com.careerdevelopment.dto.api.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -66,9 +67,44 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(payload);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
+        String message = "A database constraint was violated";
+        String cause = ex.getMostSpecificCause().getMessage();
+        
+        if (cause != null) {
+            if (cause.contains("UKkmd86jf46110c60b412tjt2bg")) {
+                message = "Roll number already exists";
+            } else if (cause.contains("email") || cause.contains("students.UK")) {
+                message = "Email already in use";
+            } else if (cause.contains("roll_number")) {
+                message = "Roll number already exists";
+            } else if (cause.contains("user_id")) {
+                message = "User profile already exists";
+            } else if (cause.contains("Duplicate entry")) {
+                // Try to extract which field caused the duplicate
+                if (cause.contains("'students'")) {
+                    message = "This student record already exists in the system";
+                } else if (cause.contains("'companies'")) {
+                    message = "This company record already exists in the system";
+                } else if (cause.contains("'users'")) {
+                    message = "This user already exists in the system";
+                }
+            }
+        }
+        
+        ApiResponse<Object> payload = ApiResponse.error(message);
+        payload.setTimestamp(Instant.now().toString());
+        payload.setPath(request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(payload);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneric(Exception ex, HttpServletRequest request) {
-        ApiResponse<Object> payload = ApiResponse.error(ex.getMessage() == null ? "Internal server error" : ex.getMessage());
+        // Log the actual exception for debugging
+        ex.printStackTrace();
+        
+        ApiResponse<Object> payload = ApiResponse.error("An error occurred. Please try again later.");
         payload.setTimestamp(Instant.now().toString());
         payload.setPath(request.getRequestURI());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(payload);
